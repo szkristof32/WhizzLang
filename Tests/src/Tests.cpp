@@ -72,4 +72,40 @@ int main(int argc, char** argv)
 		EXPECT_TRUE(opt2);
 	}
 	END;
+
+	fmt::println("\n== string_view ==");
+
+	TEST(string_view, EmptyConstruct)
+	{
+		std::string_view sv;
+		EXPECT_EQ(0ull, sv.size());
+		EXPECT_EQ((const char*)nullptr, sv.data());
+	}
+	END;
+
+	TEST(string_view, Ctor)
+	{
+		using namespace std::literals::string_view_literals;
+
+		std::string_view sv1 = "Hello";
+		auto sv2 = "Hi"sv;
+		EXPECT_EQ(5ull, sv1.size());
+		EXPECT_EQ('l', sv1.at(3));
+		EXPECT_EQ(2ull, sv2.size());
+		EXPECT_EQ('i', sv2[1]);
+	}
+	END;
+
+	TEST(string_view, Copy)
+	{
+		std::string_view sv1("Hello", 3);
+		std::string_view sv2 = sv1;
+		std::string_view sv3 = "Hello";
+		sv3 = sv2;
+		EXPECT_EQ(3ull, sv1.size());
+		EXPECT_EQ(3ull, sv2.size());
+		EXPECT_EQ(sv1.data(), sv2.data());
+		EXPECT_EQ(3ull, sv3.size());
+	}
+	END;
 }
