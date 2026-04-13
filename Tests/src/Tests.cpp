@@ -1,0 +1,75 @@
+#include "optional.h"
+
+#include <pch.h>
+
+#include <memtrace.h>
+#include <gtest_lite.h>
+
+#include <fmt/format.h>
+
+struct TestStruct
+{
+	uint32_t Value = 64;
+};
+
+int main(int argc, char** argv)
+{
+	fmt::println("wzstd tests...");
+
+	fmt::println("\n== optional ==");
+
+	TEST(optional, EmptyConstruct)
+	{
+		std::optional<uint32_t> opt;
+		EXPECT_FALSE(opt.has_value());
+		EXPECT_THROW(opt.value(), std::bad_optional_access);
+	}
+	END;
+
+	TEST(optional, NulloptConstruct)
+	{
+		std::optional<uint32_t> opt = std::nullopt;
+		EXPECT_FALSE(opt.has_value());
+		EXPECT_THROW(opt.value(), std::bad_optional_access);
+	}
+	END;
+
+	TEST(optional, Ctor)
+	{
+		std::optional<uint32_t> opt = 32;
+		EXPECT_TRUE(opt.has_value());
+		EXPECT_NO_THROW(opt.value());
+		EXPECT_EQ(32, opt.value());
+	}
+	END;
+
+	TEST(optional, Copy)
+	{
+		std::optional<uint32_t> opt1 = 32;
+		std::optional<uint32_t> opt2 = opt1;
+		std::optional<uint32_t> opt3 = 8;
+		opt3 = opt2;
+		EXPECT_EQ(32, opt2.value());
+		EXPECT_EQ(32, opt3.value());
+	}
+	END;
+
+	TEST(optional, Move)
+	{
+		std::optional<uint32_t> opt1 = 32;
+		std::optional<uint32_t> opt2 = std::move(opt1);
+		EXPECT_EQ(32, opt2.value());
+	}
+	END;
+
+	TEST(optional, Operators)
+	{
+		std::optional<uint32_t> opt1 = 32;
+		std::optional<TestStruct> opt2 = TestStruct{};
+		EXPECT_EQ(32, opt1.value());
+		EXPECT_EQ(32, *opt1);
+		EXPECT_EQ(64, opt2->Value);
+		EXPECT_TRUE(opt2);
+	}
+	END;
+}
