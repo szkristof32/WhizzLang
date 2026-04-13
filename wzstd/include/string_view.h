@@ -83,7 +83,7 @@ namespace std {
 
 		namespace string_view_literals {
 
-			string_view operator""sv(const char* string, size_t length)
+			inline string_view operator""sv(const char* string, size_t length)
 			{
 				return string_view(string, length);
 			}

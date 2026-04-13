@@ -108,4 +108,23 @@ int main(int argc, char** argv)
 		EXPECT_EQ(3ull, sv3.size());
 	}
 	END;
+
+	fmt::println("\n== filesystem ==");
+
+	TEST(filesystem, path)
+	{
+		std::filesystem::path p = "src/Tests.cpp";
+		EXPECT_EQ(13ull, p.size());
+		EXPECT_EQ('/', p.at(3));
+	}
+	END;
+
+	TEST(filesystem, exists)
+	{
+		std::filesystem::path p1 = "src/Tests.cpp";
+		std::filesystem::path p2 = "src/Tests_don't exists.cpp";
+		EXPECT_TRUE(std::filesystem::exists(p1));
+		EXPECT_FALSE(std::filesystem::exists(p2));
+	}
+	END;
 }

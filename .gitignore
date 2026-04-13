@@ -3,3 +3,7 @@ bin*/
 
 **.sln*
 **.vcxproj*
+
+Makefile
+*.make
+*.mk

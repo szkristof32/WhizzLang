@@ -1,7 +1,9 @@
 #pragma once
 
+#include "utility.h"
+
 #include <exception>
-#include <utility>
+#include <cstdint>
 
 namespace std {
 

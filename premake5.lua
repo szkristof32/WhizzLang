@@ -41,7 +41,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 include "vendor/fmt"
 
 project "wzstd"
-	kind "Utility"
+	kind "StaticLib"
 	location "wzstd"
 	
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -50,6 +50,7 @@ project "wzstd"
 	files
 	{
 		"wzstd/include/**.h",
+		"wzstd/src/**.cpp",
 	}
 
 	includedirs
@@ -87,6 +88,7 @@ project "WhizzLang"
 
 	links
 	{
+		"wzstd",
 		"fmt"
 	}
 
@@ -121,6 +123,7 @@ project "wzc"
 
 	links
 	{
+		"wzstd",
 		"WhizzLang",
 		"fmt"
 	}
@@ -150,6 +153,7 @@ project "Tests"
 
 	links
 	{
+		"wzstd",
 		"WhizzLang",
 		"fmt"
 	}
