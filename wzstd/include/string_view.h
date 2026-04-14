@@ -3,6 +3,8 @@
 #include <cstring>
 #include <string>
 
+#include "filesystem.h"
+
 namespace std {
 
 	template<typename _CharT>
@@ -63,6 +65,9 @@ namespace std {
 			ostream << m_Buffer;
 			return ostream;
 		}
+
+		operator basic_string<value_type>() { return basic_string<value_type>(m_Buffer, m_Size); }
+		operator basic_string<value_type>() const { return basic_string<value_type>(m_Buffer, m_Size); }
 	private:
 		const_pointer m_Buffer = nullptr;
 		size_type m_Size = 0;
