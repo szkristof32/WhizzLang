@@ -60,6 +60,13 @@ namespace std {
 		bool empty() const { return m_Size == 0; }
 
 		template<typename _Os>
+		_Os& operator<<(_Os& ostream)
+		{
+			ostream << m_Buffer;
+			return ostream;
+		}
+
+		template<typename _Os>
 		_Os& operator<<(_Os& ostream) const
 		{
 			ostream << m_Buffer;

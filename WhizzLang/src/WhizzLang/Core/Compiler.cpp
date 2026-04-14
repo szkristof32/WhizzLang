@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Compiler.h"
 
-#include "FileUtils.h"
+#include "WhizzLang/Utils/FileUtils.h"
 
 namespace WhizzLang {
 
@@ -9,10 +9,12 @@ namespace WhizzLang {
 		: m_Configuration(config)
 	{
 		m_Source = FileUtils::ReadFile(config.SourceFile);
+		m_Tokeniser = Tokeniser(m_Source);
 	}
 
 	void Compiler::Process()
 	{
+		m_Tokeniser.Tokenise();
 	}
 
 }

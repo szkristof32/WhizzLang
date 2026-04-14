@@ -1,6 +1,10 @@
 #include "optional.h"
+#include "string_view.h"
+#include "filesystem.h"
 
 #include <pch.h>
+
+#include "WhizzLang/Core/Tokeniser/Tokeniser.h"
 
 #include <memtrace.h>
 #include <gtest_lite.h>
@@ -14,6 +18,7 @@ struct TestStruct
 
 int main(int argc, char** argv)
 {
+#pragma region wzstd
 	fmt::println("wzstd tests...");
 
 	fmt::println("\n== optional ==");
@@ -125,6 +130,43 @@ int main(int argc, char** argv)
 		std::filesystem::path p2 = "src/Tests_don't exists.cpp";
 		EXPECT_TRUE(std::filesystem::exists(p1));
 		EXPECT_FALSE(std::filesystem::exists(p2));
+	}
+	END;
+#pragma endregion
+
+	fmt::println("\nwzc tests...");
+
+	fmt::println("\n== Tokeniser ==");
+
+	TEST(Tokeniser, Tokenise1)
+	{
+		WhizzLang::Tokeniser tokeniser("return 0;"); tokeniser.Tokenise();
+		const auto& tokens = tokeniser.GetTokens();
+		EXPECT_EQ(3ull, tokens.size());
+		EXPECT_EQ(WhizzLang::TokenType::KeywordReturn, tokens[0].Type);
+		EXPECT_EQ(WhizzLang::TokenType::IntegerLiteral, tokens[1].Type);
+		EXPECT_EQ(8ull, tokens[1].Column);
+		EXPECT_EQ(WhizzLang::TokenType::Semicolon, tokens[2].Type);
+	}
+	END;
+
+	TEST(Tokeniser, Tokenise2)
+	{
+		WhizzLang::Tokeniser tokeniser("fn main() : int\n{}"); tokeniser.Tokenise();
+		const auto& tokens = tokeniser.GetTokens();
+		EXPECT_EQ(8ull, tokens.size());
+		EXPECT_EQ(WhizzLang::TokenType::KeywordFn, tokens[0].Type);
+		EXPECT_EQ(WhizzLang::TokenType::Identifier, tokens[1].Type);
+		EXPECT_EQ(WhizzLang::TokenType::OpenBraces, tokens[2].Type);
+		EXPECT_EQ(WhizzLang::TokenType::CloseBraces, tokens[3].Type);
+		EXPECT_EQ(WhizzLang::TokenType::Colon, tokens[4].Type);
+		EXPECT_EQ(11ull, tokens[4].Column);
+		EXPECT_EQ(WhizzLang::TokenType::KeywordInt, tokens[5].Type);
+		EXPECT_EQ(WhizzLang::TokenType::OpenBrackets, tokens[6].Type);
+		EXPECT_EQ(WhizzLang::TokenType::CloseBrackets, tokens[7].Type);
+		EXPECT_EQ(2ull, tokens[6].Line);
+		EXPECT_EQ(2ull, tokens[7].Line);
+		EXPECT_EQ(2ull, tokens[7].Column);
 	}
 	END;
 }

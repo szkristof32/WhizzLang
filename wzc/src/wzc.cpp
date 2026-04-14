@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Compiler.h"
+#include "WhizzLang/Core/Compiler.h"
 
 using namespace WhizzLang;
 
