@@ -11,7 +11,7 @@ namespace std {
 	{
 	public:
 		using element_type = _Ty;
-		using value_type = remove_cv_t<_Ty>;
+		using value_type = _Ty;
 		using size_type = size_t;
 		using pointer = _Ty*;
 		using const_pointer = const _Ty*;

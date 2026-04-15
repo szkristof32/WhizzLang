@@ -16,6 +16,7 @@ namespace WhizzLang {
 	{
 		m_Tokeniser.Tokenise();
 		m_Parser.Parse(m_Tokeniser.GetTokens());
+		m_Assembly = m_Parser.GetProgram()->GenerateCode();
 	}
 
 }

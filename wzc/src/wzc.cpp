@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "WhizzLang/Core/Compiler.h"
+#include "WhizzLang/Utils/FileUtils.h"
 
 using namespace WhizzLang;
 
@@ -15,6 +16,10 @@ int main(int argc, char** argv)
 
 	Compiler compiler(configs);
 	compiler.Process();
+
+	FileUtils::WriteFile(fmt::format("{}.asm", configs.SourceFile.data()), compiler.GetAssembly());
+	system(fmt::format("nasm -felf64 -o {0}.o {0}.asm", configs.SourceFile.data()).c_str());
+	system(fmt::format("ld -o {} {}.o", configs.OutputFile.data(), configs.SourceFile.data()).c_str());
 }
 
 void GetCompilerConfiguration(int argc, char** argv, CompilerConfiguration& configs)
@@ -42,7 +47,7 @@ void GetCompilerConfiguration(int argc, char** argv, CompilerConfiguration& conf
 		argIndex++;
 	}
 
-	if (configs.OutputFile.empty())
+	if (configs.SourceFile.empty())
 	{
 		fmt::println(stderr, "Error! Specify source file!");
 		throw "Specify source file!";

@@ -20,12 +20,15 @@ namespace WhizzLang {
 		Compiler(const CompilerConfiguration& config);
 
 		void Process();
+
+		std::string_view GetAssembly() const { return m_Assembly; }
 	private:
 		CompilerConfiguration m_Configuration;
 		std::string m_Source;
 
 		Tokeniser m_Tokeniser;
 		Parser m_Parser;
+		std::string m_Assembly;
 	};
 
 }

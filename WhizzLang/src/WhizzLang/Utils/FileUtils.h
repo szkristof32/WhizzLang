@@ -19,10 +19,20 @@ namespace WhizzLang {
 			file.seekg(0, std::ios::beg);
 
 			_Buffer buffer;
-			buffer.resize(fileSize / sizeof(_Buffer::value_type));
+			buffer.resize(fileSize / sizeof(typename _Buffer::value_type));
 			file.read((char*)buffer.data(), fileSize);
 
 			return buffer;
+		}
+
+		template<typename _Buffer = std::string>
+		inline void WriteFile(const std::filesystem::path& filepath, const _Buffer& buffer)
+		{
+			std::ofstream file(filepath.c_str(), std::ios::out | std::ios::binary);
+			if (!file)
+				throw std::runtime_error("Failed to open file!");
+
+			file.write((char*)buffer.data(), buffer.size() * sizeof(typename _Buffer::value_type));
 		}
 
 	}
