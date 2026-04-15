@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WhizzLang/Core/Tokeniser/Tokeniser.h"
+#include "WhizzLang/Core/Parser/Parser.h"
 
 #include "string_view.h"
 
@@ -24,6 +25,7 @@ namespace WhizzLang {
 		std::string m_Source;
 
 		Tokeniser m_Tokeniser;
+		Parser m_Parser;
 	};
 
 }

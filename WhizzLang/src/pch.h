@@ -22,6 +22,7 @@
 #include <queue>
 #include <random>
 #include <set>
+#include <span.h>
 #include <string>
 #include <string_view.h>
 #include <thread>

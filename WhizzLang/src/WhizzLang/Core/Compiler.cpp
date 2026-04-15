@@ -15,6 +15,7 @@ namespace WhizzLang {
 	void Compiler::Process()
 	{
 		m_Tokeniser.Tokenise();
+		m_Parser.Parse(m_Tokeniser.GetTokens());
 	}
 
 }

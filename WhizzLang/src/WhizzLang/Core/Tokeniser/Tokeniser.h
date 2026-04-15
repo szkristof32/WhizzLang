@@ -15,7 +15,7 @@ namespace WhizzLang {
 
 		void Tokenise();
 
-		const std::vector<Token>& GetTokens() const { return m_Tokens; }
+		std::span<Token> GetTokens() const { return std::span<Token>(m_Tokens.data(), m_Tokens.size()); }
 	private:
 		std::optional<char> Peek(size_t length = 0);
 		char Consume();
