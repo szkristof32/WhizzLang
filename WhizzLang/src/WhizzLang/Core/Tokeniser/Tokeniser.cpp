@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "Tokeniser.h"
 
+#include "WhizzLang/Errors/SyntaxError.h"
+
 namespace WhizzLang {
 
-	Tokeniser::Tokeniser(const std::string_view source)
-		: m_Source(source)
+	Tokeniser::Tokeniser(const std::string_view source, const std::string_view filename)
+		: m_Source(source), m_Filename(filename)
 	{
 	}
 
@@ -83,7 +85,7 @@ namespace WhizzLang {
 				continue;
 			}
 
-			throw "Unexpected character!";
+			throw SyntaxError("Unexpected character", m_Filename, m_Line, m_Column);
 		}
 	}
 

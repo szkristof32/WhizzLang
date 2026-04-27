@@ -11,7 +11,7 @@ namespace WhizzLang {
 	{
 	public:
 		Tokeniser() = default;
-		Tokeniser(const std::string_view source);
+		Tokeniser(const std::string_view source, const std::string_view filename);
 
 		void Tokenise();
 
@@ -26,6 +26,7 @@ namespace WhizzLang {
 		void TokeniseNumeric();
 	private:
 		std::string_view m_Source;
+		std::string_view m_Filename;
 		std::vector<Token> m_Tokens;
 
 		size_t m_Index = 0;

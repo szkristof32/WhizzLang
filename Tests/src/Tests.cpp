@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 
 	TEST(Tokeniser, Tokenise1)
 	{
-		WhizzLang::Tokeniser tokeniser("return 0;"); tokeniser.Tokenise();
+		WhizzLang::Tokeniser tokeniser("return 0;", "Tokeniser.Tokenise1"); tokeniser.Tokenise();
 		const auto& tokens = tokeniser.GetTokens();
 		EXPECT_EQ(3ull, tokens.size());
 		EXPECT_EQ(WhizzLang::TokenType::KeywordReturn, tokens[0].Type);
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
 
 	TEST(Tokeniser, Tokenise2)
 	{
-		WhizzLang::Tokeniser tokeniser("fn main() : int\n{}"); tokeniser.Tokenise();
+		WhizzLang::Tokeniser tokeniser("fn main() : int\n{}", "Tokeniser.Tokenise2"); tokeniser.Tokenise();
 		const auto& tokens = tokeniser.GetTokens();
 		EXPECT_EQ(8ull, tokens.size());
 		EXPECT_EQ(WhizzLang::TokenType::KeywordFn, tokens[0].Type);

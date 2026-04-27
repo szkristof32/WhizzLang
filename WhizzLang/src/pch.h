@@ -33,3 +33,5 @@
 
 #include <fmt/format.h>
 #include <memtrace.h>
+
+#include "WhizzLang/Utils/Formatters.h"

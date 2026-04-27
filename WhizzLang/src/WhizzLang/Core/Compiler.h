@@ -23,8 +23,11 @@ namespace WhizzLang {
 
 		std::string_view GetAssembly() const { return m_Assembly; }
 	private:
+		void SplitSource();
+	private:
 		CompilerConfiguration m_Configuration;
 		std::string m_Source;
+		std::vector<std::string_view> m_Lines;
 
 		Tokeniser m_Tokeniser;
 		Parser m_Parser;
