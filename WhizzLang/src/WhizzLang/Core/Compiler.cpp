@@ -2,6 +2,7 @@
 #include "Compiler.h"
 
 #include "WhizzLang/Errors/SyntaxError.h"
+#include "WhizzLang/Errors/ParserError.h"
 
 #include "WhizzLang/Utils/FileUtils.h"
 #include "WhizzLang/Utils/StringUtils.h"
@@ -13,12 +14,15 @@ namespace WhizzLang {
 	{
 		m_Source = FileUtils::ReadFile(config.SourceFile);
 		SplitSource();
+
 		m_Tokeniser = Tokeniser(m_Source, config.SourceFile);
+		m_Parser = Parser(config.SourceFile);
 	}
 
 	void Compiler::Process()
 	{
-		try {
+		try
+		{
 			m_Tokeniser.Tokenise();
 		}
 		catch (SyntaxError error)
@@ -33,7 +37,21 @@ namespace WhizzLang {
 			return;
 		}
 
-		m_Parser.Parse(m_Tokeniser.GetTokens());
+		try
+		{
+			m_Parser.Parse(m_Tokeniser.GetTokens());
+		}
+		catch (ParserError error)
+		{
+			size_t line = error.GetLine();
+			size_t column = error.GetColumn();
+			auto lineStr = fmt::format("{}", line);
+
+			fmt::println(stderr, "Syntax error in {} at {}:{}: {}", error.GetFilename(), line, column, error.GetMessage());
+			fmt::println(stderr, " {} | {}", lineStr, m_Lines[line - 1]);
+			fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
+			return;
+		}
 		m_Assembly = m_Parser.GetProgram()->GenerateCode();
 	}
 
@@ -44,7 +62,7 @@ namespace WhizzLang {
 		while (offset != m_Source.size())
 		{
 			size_t eof = m_Source.find_first_of('\n', offset);
-			m_Lines.emplace_back(std::string_view(& m_Source[offset], eof - offset));
+			m_Lines.emplace_back(std::string_view(&m_Source[offset], eof - offset));
 			offset = eof + 1;
 		}
 	}

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Parser.h"
 
+#include "WhizzLang/Errors/ParserError.h"
+
 namespace WhizzLang {
 
 	Parser::~Parser()
@@ -29,9 +31,17 @@ namespace WhizzLang {
 
 	const Token& Parser::TryConsume(TokenType type)
 	{
-		if (Peek().has_value() && Peek().value().Type == type)
+		if (!Peek().has_value())
+		{
+			const auto& currentToken = GetPreviousToken();
+			throw ParserError("No token left", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
+		}
+
+		if (Peek().value().Type == type)
 			return Consume();
-		throw std::runtime_error("Unexpected token");
+
+		throw ParserError(fmt::format("Unexpected token: Expected {}", TokenUtils::TokenTypeToString(type)),
+			std::nullopt, m_Filename, Peek().value().Line, Peek().value().Column);
 	}
 
 	std::span<Token> Parser::TryConsume(std::initializer_list<TokenType> types)
@@ -53,12 +63,12 @@ namespace WhizzLang {
 
 			switch (token.Type)
 			{
-				case TokenType::KeywordFn:
-				{
-					auto fn = ParseFunction();
-					program->PushChild(fn);
-					break;
-				}
+			case TokenType::KeywordFn:
+			{
+				auto fn = ParseFunction();
+				program->PushChild(fn);
+				break;
+			}
 			}
 		}
 
@@ -90,7 +100,10 @@ namespace WhizzLang {
 	NodeStatement* Parser::ParseStatement()
 	{
 		if (!Peek().has_value())
-			throw std::runtime_error("No token left!");
+		{
+			const auto& currentToken = GetPreviousToken();
+			throw ParserError("No token left: Expected Statement", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
+		}
 
 		auto token = Peek().value();
 
@@ -107,7 +120,8 @@ namespace WhizzLang {
 			}
 		}
 
-		throw std::runtime_error("Invalid statement!");
+		const auto& currentToken = GetCurrentToken();
+		throw ParserError("Invalid token: Unexpected Statement", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
 	}
 
 	NodeExpression* Parser::ParseExpression()
