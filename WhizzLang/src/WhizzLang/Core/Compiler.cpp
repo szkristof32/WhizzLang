@@ -52,6 +52,7 @@ namespace WhizzLang {
 			fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
 			return;
 		}
+
 		m_Assembly = m_Parser.GetProgram()->GenerateCode();
 	}
 

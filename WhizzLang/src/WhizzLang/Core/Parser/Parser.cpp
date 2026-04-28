@@ -63,12 +63,12 @@ namespace WhizzLang {
 
 			switch (token.Type)
 			{
-			case TokenType::KeywordFn:
-			{
-				auto fn = ParseFunction();
-				program->PushChild(fn);
-				break;
-			}
+				case TokenType::KeywordFn:
+				{
+					auto fn = ParseFunction();
+					program->PushChild(fn);
+					break;
+				}
 			}
 		}
 
@@ -126,9 +126,24 @@ namespace WhizzLang {
 
 	NodeExpression* Parser::ParseExpression()
 	{
-		const auto& integer = TryConsume(TokenType::IntegerLiteral);
-		NodeExpression* expression = new NodeExpression(integer);
-		return expression;
+		NodeTerm* lhs = ParseTerm();
+
+		if (Peek().has_value() && Peek().value().Type == TokenType::Plus)
+		{
+			Consume();
+			auto rhs = ParseExpression();
+			auto add = new NodeBinaryExpressionAdd(lhs, rhs);
+			return add;
+		}
+
+		return lhs;
+	}
+
+	NodeTerm* Parser::ParseTerm()
+	{
+		auto& integerLiteral = TryConsume(TokenType::IntegerLiteral);
+		NodeTerm* term = new NodeTermIntegerLiteral(integerLiteral);
+		return term;
 	}
 
 }

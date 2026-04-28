@@ -51,10 +51,23 @@ namespace WhizzLang {
 		return ss.str();
 	}
 
-	std::string NodeExpression::GenerateCode() const
+	std::string NodeTermIntegerLiteral::GenerateCode() const
 	{
 		std::stringstream ss;
 		ss << "\tmov r8, " << m_IntegerLiteral.Buffer << "\n";
+		return ss.str();
+	}
+
+	std::string NodeBinaryExpressionAdd::GenerateCode() const
+	{
+		std::stringstream ss;
+
+		ss << m_Lhs->GenerateCode();
+		ss << "\tpush r8\n";
+		ss << m_Rhs->GenerateCode();
+		ss << "\tpop r9\n";
+		ss << "\tadd r8, r9\n";
+
 		return ss.str();
 	}
 

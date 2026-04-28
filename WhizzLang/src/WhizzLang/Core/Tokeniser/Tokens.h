@@ -9,7 +9,8 @@ namespace WhizzLang {
 		Identifier,
 		OpenBraces, CloseBraces, OpenBrackets, CloseBrackets,
 		Colon, Semicolon,
-		IntegerLiteral
+		IntegerLiteral,
+		Plus
 	};
 
 	namespace TokenUtils {

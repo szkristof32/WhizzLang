@@ -71,6 +71,13 @@ namespace WhizzLang {
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}
+				case '+':
+				{
+					Consume();
+					token.Type = TokenType::Plus;
+					m_Tokens.emplace_back(std::move(token));
+					continue;
+				}
 				case '\n':
 				{
 					m_Line++;

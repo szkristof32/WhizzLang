@@ -47,14 +47,48 @@ namespace WhizzLang {
 
 	class NodeExpression : public Node
 	{
+	};
+
+	class NodeTerm : public NodeExpression
+	{
+	};
+
+	class NodeTermIntegerLiteral : public NodeTerm
+	{
 	public:
-		NodeExpression(const Token& integer) : m_IntegerLiteral(integer) {}
+		NodeTermIntegerLiteral(const Token& integer) : m_IntegerLiteral(integer) {}
 
 		virtual std::string GenerateCode() const override;
 
 		const Token& GetIntegerLiteral() const { return m_IntegerLiteral; }
 	private:
 		const Token& m_IntegerLiteral;
+	};
+
+	class NodeBinaryExpression : public NodeExpression
+	{
+	public:
+		NodeBinaryExpression(NodeExpression* lhs, NodeExpression* rhs)
+			: m_Lhs(lhs), m_Rhs(rhs)
+		{
+		}
+
+		NodeExpression* GetLhs() const { return m_Lhs; }
+		NodeExpression* GetRhs() const { return m_Rhs; }
+	protected:
+		NodeExpression* m_Lhs;
+		NodeExpression* m_Rhs;
+	};
+
+	class NodeBinaryExpressionAdd : public NodeBinaryExpression
+	{
+	public:
+		NodeBinaryExpressionAdd(NodeExpression* lhs, NodeExpression* rhs)
+			: NodeBinaryExpression(lhs, rhs)
+		{
+		}
+
+		virtual std::string GenerateCode() const override;
 	};
 
 	class NodeReturn : public NodeStatement
