@@ -11,10 +11,10 @@ namespace WhizzLang {
 			case TokenType::KeywordInt:		return "KeywordInt";
 			case TokenType::KeywordReturn:	return "KeywordReturn";
 			case TokenType::Identifier:		return "Identifier";
-			case TokenType::OpenBracket:		return "OpenBraces";
-			case TokenType::CloseBracket:	return "CloseBraces";
-			case TokenType::OpenBrace:	return "OpenBrackets";
-			case TokenType::CloseBrace:	return "CloseBrackets";
+			case TokenType::OpenBracket:	return "OpenBracket";
+			case TokenType::CloseBracket:	return "CloseBracket";
+			case TokenType::OpenBrace:		return "OpenBrace";
+			case TokenType::CloseBrace:		return "CloseBrace";
 			case TokenType::Colon:			return "Colon";
 			case TokenType::Semicolon:		return "Semicolon";
 			case TokenType::IntegerLiteral:	return "IntegerLiteral";

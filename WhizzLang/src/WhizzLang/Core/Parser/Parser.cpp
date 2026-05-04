@@ -53,9 +53,11 @@ namespace WhizzLang {
 		return std::span<Token>(m_Tokens.data() + m_Index - types.size(), types.size());
 	}
 
+#define metadata m_Filename, GetPreviousToken().Line, GetPreviousToken().Column
+
 	NodeProgram* Parser::ParseProgram()
 	{
-		NodeProgram* program = new NodeProgram();
+		NodeProgram* program = new NodeProgram(metadata);
 
 		while (Peek().has_value())
 		{
@@ -82,19 +84,41 @@ namespace WhizzLang {
 		TryConsume({ TokenType::OpenBracket, TokenType::CloseBracket });
 		TryConsume(TokenType::Colon);
 		auto& returnType = TryConsume(TokenType::KeywordInt);
-		NodeFunction* fn = new NodeFunction(identifier, returnType);
+		NodeFunction* fn = new NodeFunction(identifier, returnType, metadata);
 
+		NodeScope* scope = ParseScope();
+		fn->PushChild(scope);
+
+		return fn;
+	}
+
+	NodeScope* Parser::ParseScope()
+	{
 		TryConsume(TokenType::OpenBrace);
 
-		while (Peek().has_value() && Peek().value().Type != TokenType::CloseBrace)
+		NodeScope* scope = new NodeScope(metadata);
+		while (Peek().has_value() && Peek()->Type != TokenType::CloseBrace)
 		{
-			NodeStatement* statement = ParseStatement();
-			fn->PushChild(statement);
+			switch (Peek()->Type)
+			{
+				case TokenType::OpenBrace:
+				{
+					NodeScope* newScope = ParseScope();
+					scope->PushChild(newScope);
+					break;
+				}
+				default:
+				{
+					NodeStatement* statement = ParseStatement();
+					scope->PushChild(statement);
+					break;
+				}
+			}
 		}
 
 		TryConsume(TokenType::CloseBrace);
 
-		return fn;
+		return scope;
 	}
 
 	NodeStatement* Parser::ParseStatement()
@@ -114,7 +138,7 @@ namespace WhizzLang {
 				Consume();
 				NodeExpression* expression = ParseExpression();
 				TryConsume(TokenType::Semicolon);
-				NodeStatement* statement = new NodeReturn();
+				NodeStatement* statement = new NodeReturn(metadata);
 				statement->PushChild(expression);
 				return statement;
 			}
@@ -125,7 +149,7 @@ namespace WhizzLang {
 				TryConsume(TokenType::Equal);
 				NodeExpression* expression = ParseExpression();
 				TryConsume(TokenType::Semicolon);
-				NodeStatement* statement = new NodeVariable(name);
+				NodeStatement* statement = new NodeVariable(name, metadata);
 				statement->PushChild(expression);
 				return statement;
 			}
@@ -153,22 +177,22 @@ namespace WhizzLang {
 			{
 				case TokenType::Plus:
 				{
-					lhs = new NodeBinaryExpressionAdd(lhs, rhs);
+					lhs = new NodeBinaryExpressionAdd(lhs, rhs, metadata);
 					break;
 				}
 				case TokenType::Minus:
 				{
-					lhs = new NodeBinaryExpressionSubtract(lhs, rhs);
+					lhs = new NodeBinaryExpressionSubtract(lhs, rhs, metadata);
 					break;
 				}
 				case TokenType::Star:
 				{
-					lhs = new NodeBinaryExpressionMultiply(lhs, rhs);
+					lhs = new NodeBinaryExpressionMultiply(lhs, rhs, metadata);
 					break;
 				}
 				case TokenType::Slash:
 				{
-					lhs = new NodeBinaryExpressionDivide(lhs, rhs);
+					lhs = new NodeBinaryExpressionDivide(lhs, rhs, metadata);
 					break;
 				}
 			}
@@ -189,7 +213,7 @@ namespace WhizzLang {
 			case TokenType::IntegerLiteral:
 			{
 				auto& integerLiteral = Consume();
-				NodeTerm* term = new NodeTermIntegerLiteral(integerLiteral);
+				NodeTerm* term = new NodeTermIntegerLiteral(integerLiteral, metadata);
 				return term;
 			}
 			case TokenType::OpenBracket:
@@ -197,13 +221,13 @@ namespace WhizzLang {
 				Consume();
 				auto expression = ParseExpression();
 				TryConsume(TokenType::CloseBracket);
-				NodeTerm* term = new NodeTermBracket(expression);
+				NodeTerm* term = new NodeTermBracket(expression, metadata);
 				return term;
 			}
 			case TokenType::Identifier:
 			{
 				auto& identifier = Consume();
-				NodeTerm* term = new NodeTermIdentifier(identifier);
+				NodeTerm* term = new NodeTermIdentifier(identifier, metadata);
 				return term;
 			}
 		}

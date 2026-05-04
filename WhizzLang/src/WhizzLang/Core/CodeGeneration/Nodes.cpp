@@ -30,8 +30,6 @@ namespace WhizzLang {
 			child->GenerateCode(generator);
 		}
 
-		generator.CleanUp();
-
 		generator << "\tret\n";
 	}
 
@@ -48,7 +46,7 @@ namespace WhizzLang {
 	void NodeVariable::GenerateCode(CodeGenerator& generator) const
 	{
 		if (generator.FindVariable(m_Identifier.Buffer).has_value())
-			throw GeneratorError("Variable already defined", "", 1, 1);
+			throw GeneratorError("Variable already defined", m_Filename, m_Line, m_Column);
 		generator.PushVariable(m_Identifier.Buffer);
 
 		for (const auto& child : m_Children)
@@ -112,8 +110,20 @@ namespace WhizzLang {
 	{
 		auto variable = generator.FindVariable(m_Identifier.Buffer);
 		if (!variable.has_value())
-			throw GeneratorError(fmt::format("Undeclared identifier `{}`", m_Identifier.Buffer), "", 1, 1);
+			throw GeneratorError(fmt::format("Undeclared identifier `{}`", m_Identifier.Buffer), m_Filename, m_Line, m_Column);
 		generator << "\tmov r8, QWORD [rsp + " << (generator.GetStackSize() - variable->StackLocation - 1) * 8 << "]\n";
+	}
+
+	void NodeScope::GenerateCode(CodeGenerator& generator) const
+	{
+		generator.OpenScope();
+
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
+
+		generator.CloseScope();
 	}
 
 }

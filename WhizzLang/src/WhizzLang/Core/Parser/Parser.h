@@ -29,6 +29,7 @@ namespace WhizzLang {
 
 		NodeProgram* ParseProgram();
 		NodeFunction* ParseFunction();
+		NodeScope* ParseScope();
 		NodeStatement* ParseStatement();
 		NodeExpression* ParseExpression(uint32_t minPrecedence = 0);
 		NodeTerm* ParseTerm();

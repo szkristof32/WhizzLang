@@ -8,25 +8,35 @@ namespace WhizzLang {
 		struct Variable
 		{
 			std::string Name;
-			size_t StackLocation;
+			size_t StackLocation = 0;
+		};
+		struct Scope
+		{
+			size_t StackLocation = 0;
+			size_t ScopeSize = 0;
+			std::vector<Variable> Variables;
 		};
 	public:
+		void OpenScope();
+		void CloseScope();
+
+		void PushVariable(const std::string& name);
 		std::optional<Variable> FindVariable(const std::string& name) const;
-		void PushVariable(const std::string& name) { m_Variables.emplace_back(Variable{ name, m_StackSize }); }
-		void CleanUp();
 
 		void Push(const std::string& reg)
 		{
 			m_Code << "\tpush " << reg << "\n";
-			m_StackSize++;
+			GetCurrentScope().ScopeSize++;
 		}
 		void Pop(const std::string& reg)
 		{
 			m_Code << "\tpop " << reg << "\n";
-			m_StackSize--;
+			GetCurrentScope().ScopeSize--;
 		}
 
-		size_t GetStackSize() const { return m_StackSize; }
+		Scope& GetCurrentScope() { return m_Scopes.at(m_Scopes.size() - 1); }
+		const Scope& GetCurrentScope() const { return m_Scopes.at(m_Scopes.size() - 1); }
+		size_t GetStackSize() const { return GetCurrentScope().ScopeSize; }
 		const std::stringstream& GetCode() const { return m_Code; }
 
 		template<typename _Ty>
@@ -37,8 +47,7 @@ namespace WhizzLang {
 		}
 	private:
 		std::stringstream m_Code;
-		std::vector<Variable> m_Variables;
-		size_t m_StackSize = 0;
+		std::vector<Scope> m_Scopes;
 	};
 
 }
