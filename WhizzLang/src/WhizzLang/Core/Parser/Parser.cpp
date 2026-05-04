@@ -168,9 +168,31 @@ namespace WhizzLang {
 
 	NodeTerm* Parser::ParseTerm()
 	{
-		auto& integerLiteral = TryConsume(TokenType::IntegerLiteral);
-		NodeTerm* term = new NodeTermIntegerLiteral(integerLiteral);
-		return term;
+		auto token = Peek();
+
+		if (!token.has_value())
+			throw ParserError("No token left", std::nullopt, m_Filename, GetPreviousToken().Line, GetPreviousToken().Column);
+
+		switch (token->Type)
+		{
+			case TokenType::IntegerLiteral:
+			{
+				auto& integerLiteral = Consume();
+				NodeTerm* term = new NodeTermIntegerLiteral(integerLiteral);
+				return term;
+			}
+			case TokenType::OpenBraces:
+			{
+				Consume();
+				auto expression = ParseExpression();
+				TryConsume(TokenType::CloseBraces);
+				NodeTerm* term = new NodeTermBraces(expression);
+				return term;
+			}
+		}
+
+		const auto& currentToken = GetCurrentToken();
+		throw ParserError("Unexpected token: Expected IntegerLiteral or OpenBraces", currentToken, m_Filename, currentToken.Line, currentToken.Column);
 	}
 
 }

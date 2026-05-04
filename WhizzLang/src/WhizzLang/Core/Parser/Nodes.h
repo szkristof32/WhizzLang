@@ -65,6 +65,18 @@ namespace WhizzLang {
 		const Token& m_IntegerLiteral;
 	};
 
+	class NodeTermBraces : public NodeTerm
+	{
+	public:
+		NodeTermBraces(NodeExpression* expression) : m_Expression(expression) {}
+
+		virtual std::string GenerateCode() const override;
+
+		const NodeExpression* GetExpression() const { return m_Expression; }
+	private:
+		NodeExpression* m_Expression;
+	};
+
 	class NodeBinaryExpression : public NodeExpression
 	{
 	public:
