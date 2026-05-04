@@ -10,12 +10,13 @@ namespace WhizzLang {
 		OpenBraces, CloseBraces, OpenBrackets, CloseBrackets,
 		Colon, Semicolon,
 		IntegerLiteral,
-		Plus
+		Plus, Minus, Star, Slash
 	};
 
 	namespace TokenUtils {
 
 		std::string_view TokenTypeToString(TokenType type);
+		uint32_t BinaryPrecedence(TokenType type);
 
 	}
 

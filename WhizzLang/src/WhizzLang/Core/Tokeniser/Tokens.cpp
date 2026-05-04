@@ -23,4 +23,17 @@ namespace WhizzLang {
 		throw std::runtime_error("Invalid TokenType!");
 	}
 
+	uint32_t TokenUtils::BinaryPrecedence(TokenType type)
+	{
+		switch (type)
+		{
+			case TokenType::Plus:	return 1;
+			case TokenType::Minus:	return 1;
+			case TokenType::Star:	return 2;
+			case TokenType::Slash:	return 2;
+		}
+
+		return 0;
+	}
+
 }

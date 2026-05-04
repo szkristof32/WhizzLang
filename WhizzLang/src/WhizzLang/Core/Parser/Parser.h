@@ -30,7 +30,7 @@ namespace WhizzLang {
 		NodeProgram* ParseProgram();
 		NodeFunction* ParseFunction();
 		NodeStatement* ParseStatement();
-		NodeExpression* ParseExpression();
+		NodeExpression* ParseExpression(uint32_t minPrecedence = 0);
 		NodeTerm* ParseTerm();
 	private:
 		std::span<Token> m_Tokens;

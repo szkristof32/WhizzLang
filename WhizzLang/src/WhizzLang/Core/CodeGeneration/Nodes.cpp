@@ -71,4 +71,47 @@ namespace WhizzLang {
 		return ss.str();
 	}
 
+	std::string NodeBinaryExpressionSubtract::GenerateCode() const
+	{
+		std::stringstream ss;
+
+		ss << m_Lhs->GenerateCode();
+		ss << "\tpush r8\n";
+		ss << m_Rhs->GenerateCode();
+		ss << "\tmov r9, r8\n";
+		ss << "\tpop r8\n";
+		ss << "\tsub r8, r9\n";
+
+		return ss.str();
+	}
+
+	std::string NodeBinaryExpressionMultiply::GenerateCode() const
+	{
+		std::stringstream ss;
+
+		ss << m_Lhs->GenerateCode();
+		ss << "\tpush r8\n";
+		ss << m_Rhs->GenerateCode();
+		ss << "\tpop rax\n";
+		ss << "\timul rax, r8\n";
+		ss << "\tmov r8, rax\n";
+
+		return ss.str();
+	}
+
+	std::string NodeBinaryExpressionDivide::GenerateCode() const
+	{
+		std::stringstream ss;
+
+		ss << m_Lhs->GenerateCode();
+		ss << "\tpush r8\n";
+		ss << m_Rhs->GenerateCode();
+		ss << "\tpop rax\n";
+		ss << "\tcdq\n";
+		ss << "\tidiv r8\n";
+		ss << "\tmov r8, rax\n";
+
+		return ss.str();
+	}
+
 }

@@ -91,6 +91,39 @@ namespace WhizzLang {
 		virtual std::string GenerateCode() const override;
 	};
 
+	class NodeBinaryExpressionSubtract : public NodeBinaryExpression
+	{
+	public:
+		NodeBinaryExpressionSubtract(NodeExpression* lhs, NodeExpression* rhs)
+			: NodeBinaryExpression(lhs, rhs)
+		{
+		}
+
+		virtual std::string GenerateCode() const override;
+	};
+
+	class NodeBinaryExpressionMultiply : public NodeBinaryExpression
+	{
+	public:
+		NodeBinaryExpressionMultiply(NodeExpression* lhs, NodeExpression* rhs)
+			: NodeBinaryExpression(lhs, rhs)
+		{
+		}
+
+		virtual std::string GenerateCode() const override;
+	};
+
+	class NodeBinaryExpressionDivide : public NodeBinaryExpression
+	{
+	public:
+		NodeBinaryExpressionDivide(NodeExpression* lhs, NodeExpression* rhs)
+			: NodeBinaryExpression(lhs, rhs)
+		{
+		}
+
+		virtual std::string GenerateCode() const override;
+	};
+
 	class NodeReturn : public NodeStatement
 	{
 	public:

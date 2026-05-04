@@ -124,16 +124,43 @@ namespace WhizzLang {
 		throw ParserError("Invalid token: Unexpected Statement", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
 	}
 
-	NodeExpression* Parser::ParseExpression()
+	NodeExpression* Parser::ParseExpression(uint32_t minPrecedence)
 	{
-		NodeTerm* lhs = ParseTerm();
+		NodeExpression* lhs = ParseTerm();
 
-		if (Peek().has_value() && Peek().value().Type == TokenType::Plus)
+		while (Peek().has_value())
 		{
-			Consume();
-			auto rhs = ParseExpression();
-			auto add = new NodeBinaryExpressionAdd(lhs, rhs);
-			return add;
+			uint32_t precedence = TokenUtils::BinaryPrecedence(Peek()->Type);
+			if (precedence == 0 || precedence < minPrecedence)
+				break;
+
+			Token op = Consume();
+			uint32_t nextPrecedence = precedence + 1;
+			NodeExpression* rhs = ParseExpression(nextPrecedence);
+
+			switch (op.Type)
+			{
+				case TokenType::Plus:
+				{
+					lhs = new NodeBinaryExpressionAdd(lhs, rhs);
+					break;
+				}
+				case TokenType::Minus:
+				{
+					lhs = new NodeBinaryExpressionSubtract(lhs, rhs);
+					break;
+				}
+				case TokenType::Star:
+				{
+					lhs = new NodeBinaryExpressionMultiply(lhs, rhs);
+					break;
+				}
+				case TokenType::Slash:
+				{
+					lhs = new NodeBinaryExpressionDivide(lhs, rhs);
+					break;
+				}
+			}
 		}
 
 		return lhs;
