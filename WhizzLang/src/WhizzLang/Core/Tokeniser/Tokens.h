@@ -7,7 +7,7 @@ namespace WhizzLang {
 		None = 0,
 		KeywordFn, KeywordInt, KeywordReturn,
 		Identifier,
-		OpenBraces, CloseBraces, OpenBrackets, CloseBrackets,
+		OpenBracket, CloseBracket, OpenBrace, CloseBrace,
 		Colon, Semicolon,
 		IntegerLiteral,
 		Plus, Minus, Star, Slash

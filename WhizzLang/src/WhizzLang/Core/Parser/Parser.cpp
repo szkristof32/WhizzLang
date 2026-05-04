@@ -79,20 +79,20 @@ namespace WhizzLang {
 	{
 		Consume();
 		auto& identifier = TryConsume(TokenType::Identifier);
-		TryConsume({ TokenType::OpenBraces, TokenType::CloseBraces });
+		TryConsume({ TokenType::OpenBracket, TokenType::CloseBracket });
 		TryConsume(TokenType::Colon);
 		auto& returnType = TryConsume(TokenType::KeywordInt);
 		NodeFunction* fn = new NodeFunction(identifier, returnType);
 
-		TryConsume(TokenType::OpenBrackets);
+		TryConsume(TokenType::OpenBrace);
 
-		while (Peek().has_value() && Peek().value().Type != TokenType::CloseBrackets)
+		while (Peek().has_value() && Peek().value().Type != TokenType::CloseBrace)
 		{
 			NodeStatement* statement = ParseStatement();
 			fn->PushChild(statement);
 		}
 
-		TryConsume(TokenType::CloseBrackets);
+		TryConsume(TokenType::CloseBrace);
 
 		return fn;
 	}
@@ -181,12 +181,12 @@ namespace WhizzLang {
 				NodeTerm* term = new NodeTermIntegerLiteral(integerLiteral);
 				return term;
 			}
-			case TokenType::OpenBraces:
+			case TokenType::OpenBracket:
 			{
 				Consume();
 				auto expression = ParseExpression();
-				TryConsume(TokenType::CloseBraces);
-				NodeTerm* term = new NodeTermBraces(expression);
+				TryConsume(TokenType::CloseBracket);
+				NodeTerm* term = new NodeTermBracket(expression);
 				return term;
 			}
 		}

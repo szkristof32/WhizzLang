@@ -157,13 +157,13 @@ int main(int argc, char** argv)
 		EXPECT_EQ(8ull, tokens.size());
 		EXPECT_EQ(WhizzLang::TokenType::KeywordFn, tokens[0].Type);
 		EXPECT_EQ(WhizzLang::TokenType::Identifier, tokens[1].Type);
-		EXPECT_EQ(WhizzLang::TokenType::OpenBraces, tokens[2].Type);
-		EXPECT_EQ(WhizzLang::TokenType::CloseBraces, tokens[3].Type);
+		EXPECT_EQ(WhizzLang::TokenType::OpenBracket, tokens[2].Type);
+		EXPECT_EQ(WhizzLang::TokenType::CloseBracket, tokens[3].Type);
 		EXPECT_EQ(WhizzLang::TokenType::Colon, tokens[4].Type);
 		EXPECT_EQ(11ull, tokens[4].Column);
 		EXPECT_EQ(WhizzLang::TokenType::KeywordInt, tokens[5].Type);
-		EXPECT_EQ(WhizzLang::TokenType::OpenBrackets, tokens[6].Type);
-		EXPECT_EQ(WhizzLang::TokenType::CloseBrackets, tokens[7].Type);
+		EXPECT_EQ(WhizzLang::TokenType::OpenBrace, tokens[6].Type);
+		EXPECT_EQ(WhizzLang::TokenType::CloseBracket, tokens[7].Type);
 		EXPECT_EQ(2ull, tokens[6].Line);
 		EXPECT_EQ(2ull, tokens[7].Line);
 		EXPECT_EQ(2ull, tokens[7].Column);

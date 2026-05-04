@@ -46,28 +46,28 @@ namespace WhizzLang {
 				case '(':
 				{
 					Consume();
-					token.Type = TokenType::OpenBraces;
+					token.Type = TokenType::OpenBracket;
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}
 				case ')':
 				{
 					Consume();
-					token.Type = TokenType::CloseBraces;
+					token.Type = TokenType::CloseBracket;
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}
 				case '{':
 				{
 					Consume();
-					token.Type = TokenType::OpenBrackets;
+					token.Type = TokenType::OpenBrace;
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}
 				case '}':
 				{
 					Consume();
-					token.Type = TokenType::CloseBrackets;
+					token.Type = TokenType::CloseBrace;
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}

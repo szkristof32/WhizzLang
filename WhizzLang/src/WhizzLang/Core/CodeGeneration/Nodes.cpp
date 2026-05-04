@@ -114,7 +114,7 @@ namespace WhizzLang {
 		return ss.str();
 	}
 
-	std::string NodeTermBraces::GenerateCode() const
+	std::string NodeTermBracket::GenerateCode() const
 	{
 		return m_Expression->GenerateCode();
 	}
