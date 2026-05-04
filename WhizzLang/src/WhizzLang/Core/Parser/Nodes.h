@@ -2,6 +2,8 @@
 
 #include "WhizzLang/Core/Tokeniser/Tokens.h"
 
+#include "WhizzLang/Core/CodeGeneration/CodeGenerator.h"
+
 namespace WhizzLang {
 
 	class Node
@@ -12,7 +14,7 @@ namespace WhizzLang {
 			for (const auto& child : m_Children) delete child;
 		}
 
-		virtual std::string GenerateCode() const = 0;
+		virtual void GenerateCode(CodeGenerator& generator) const = 0;
 
 		void PushChild(Node* child) { m_Children.emplace_back(child); child->m_Parent = this; }
 		std::span<Node*> GetChildren() const { return { m_Children.data(), m_Children.size() }; }
@@ -24,7 +26,7 @@ namespace WhizzLang {
 	class NodeProgram : public Node
 	{
 	public:
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
 	class NodeFunction : public Node
@@ -32,7 +34,7 @@ namespace WhizzLang {
 	public:
 		NodeFunction(const Token& identifier, const Token& returnType) : m_Identifier(identifier), m_ReturnType(returnType) {}
 
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 
 		const Token& GetIdentifier() const { return m_Identifier; }
 		const Token& GetReturnType() const { return m_ReturnType; }
@@ -43,6 +45,24 @@ namespace WhizzLang {
 
 	class NodeStatement : public Node
 	{
+	};
+
+	class NodeReturn : public NodeStatement
+	{
+	public:
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	};
+
+	class NodeVariable : public NodeStatement
+	{
+	public:
+		NodeVariable(const Token& identifier) : m_Identifier(identifier) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+
+		const Token& GetIdentifier() const { return m_Identifier; }
+	private:
+		Token m_Identifier;
 	};
 
 	class NodeExpression : public Node
@@ -58,7 +78,7 @@ namespace WhizzLang {
 	public:
 		NodeTermIntegerLiteral(const Token& integer) : m_IntegerLiteral(integer) {}
 
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 
 		const Token& GetIntegerLiteral() const { return m_IntegerLiteral; }
 	private:
@@ -70,11 +90,23 @@ namespace WhizzLang {
 	public:
 		NodeTermBracket(NodeExpression* expression) : m_Expression(expression) {}
 
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 
 		const NodeExpression* GetExpression() const { return m_Expression; }
 	private:
 		NodeExpression* m_Expression;
+	};
+
+	class NodeTermIdentifier : public NodeTerm
+	{
+	public:
+		NodeTermIdentifier(const Token& identifier) : m_Identifier(identifier) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+
+		const Token& GetIdentifier() const { return m_Identifier; }
+	private:
+		const Token& m_Identifier;
 	};
 
 	class NodeBinaryExpression : public NodeExpression
@@ -100,7 +132,7 @@ namespace WhizzLang {
 		{
 		}
 
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
 	class NodeBinaryExpressionSubtract : public NodeBinaryExpression
@@ -111,7 +143,7 @@ namespace WhizzLang {
 		{
 		}
 
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
 	class NodeBinaryExpressionMultiply : public NodeBinaryExpression
@@ -122,7 +154,7 @@ namespace WhizzLang {
 		{
 		}
 
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
 	class NodeBinaryExpressionDivide : public NodeBinaryExpression
@@ -133,13 +165,7 @@ namespace WhizzLang {
 		{
 		}
 
-		virtual std::string GenerateCode() const override;
-	};
-
-	class NodeReturn : public NodeStatement
-	{
-	public:
-		virtual std::string GenerateCode() const override;
+		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
 }

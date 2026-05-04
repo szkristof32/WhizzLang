@@ -99,6 +99,13 @@ namespace WhizzLang {
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}
+				case '=':
+				{
+					Consume();
+					token.Type = TokenType::Equal;
+					m_Tokens.emplace_back(std::move(token));
+					continue;
+				}
 				case '\n':
 				{
 					m_Line++;
@@ -164,6 +171,12 @@ namespace WhizzLang {
 		if (buffer == "return")
 		{
 			token.Type = TokenType::KeywordReturn;
+			m_Tokens.emplace_back(std::move(token));
+			return;
+		}
+		if (buffer == "const")
+		{
+			token.Type = TokenType::KeywordConst;
 			m_Tokens.emplace_back(std::move(token));
 			return;
 		}

@@ -2,6 +2,7 @@
 
 #include "WhizzLang/Core/Tokeniser/Tokeniser.h"
 #include "WhizzLang/Core/Parser/Parser.h"
+#include "WhizzLang/Core/CodeGeneration/CodeGenerator.h"
 
 #include "string_view.h"
 
@@ -31,6 +32,7 @@ namespace WhizzLang {
 
 		Tokeniser m_Tokeniser;
 		Parser m_Parser;
+		CodeGenerator m_Generator;
 		std::string m_Assembly;
 	};
 

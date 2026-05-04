@@ -5,12 +5,13 @@ namespace WhizzLang {
 	enum class TokenType
 	{
 		None = 0,
-		KeywordFn, KeywordInt, KeywordReturn,
+		KeywordFn, KeywordInt, KeywordReturn, KeywordConst,
 		Identifier,
 		OpenBracket, CloseBracket, OpenBrace, CloseBrace,
 		Colon, Semicolon,
 		IntegerLiteral,
-		Plus, Minus, Star, Slash
+		Plus, Minus, Star, Slash,
+		Equal
 	};
 
 	namespace TokenUtils {

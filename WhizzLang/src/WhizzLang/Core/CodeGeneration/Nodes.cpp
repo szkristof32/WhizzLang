@@ -1,122 +1,119 @@
 #include "pch.h"
 #include "WhizzLang/Core/Parser/Nodes.h"
 
+#include "WhizzLang/Errors/GeneratorError.h"
+
 namespace WhizzLang {
 
-	std::string NodeProgram::GenerateCode() const
+	void NodeProgram::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-		ss << "\tglobal _start\n";
-		ss << "\tsection .text\n";
-		ss << "_start:\n";
-		ss << "\tcall main\n";
-		ss << "\tmov rdi, rax\n";
-		ss << "\tmov rax, 60\n";
-		ss << "\tsyscall\n";
+		generator << "\tglobal _start\n";
+		generator << "\tsection .text\n";
+		generator << "_start:\n";
+		generator << "\tcall main\n";
+		generator << "\tmov rdi, rax\n";
+		generator << "\tmov rax, 60\n";
+		generator << "\tsyscall\n";
 
 		for (const auto& child : m_Children)
 		{
-			ss << child->GenerateCode();
+			child->GenerateCode(generator);
 		}
-
-		return ss.str();
 	}
 
-	std::string NodeFunction::GenerateCode() const
+	void NodeFunction::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-		ss << m_Identifier.Buffer << ":\n";
+		generator << m_Identifier.Buffer << ":\n";
 		
 		for (const auto& child : m_Children)
 		{
-			ss << child->GenerateCode();
+			child->GenerateCode(generator);
 		}
 
-		ss << "\tret\n";
+		generator.CleanUp();
 
-		return ss.str();
+		generator << "\tret\n";
 	}
 
-	std::string NodeReturn::GenerateCode() const
+	void NodeReturn::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
+
+		generator << "\tmov rax, r8\n";
+	}
+
+	void NodeVariable::GenerateCode(CodeGenerator& generator) const
+	{
+		if (generator.FindVariable(m_Identifier.Buffer).has_value())
+			throw GeneratorError("Variable already defined", "", 1, 1);
+		generator.PushVariable(m_Identifier.Buffer);
 
 		for (const auto& child : m_Children)
 		{
-			ss << child->GenerateCode();
+			child->GenerateCode(generator);
 		}
 
-		ss << "\tmov rax, r8\n";
-
-		return ss.str();
+		generator.Push("r8");
 	}
 
-	std::string NodeTermIntegerLiteral::GenerateCode() const
+	void NodeTermIntegerLiteral::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-		ss << "\tmov r8, " << m_IntegerLiteral.Buffer << "\n";
-		return ss.str();
+		generator << "\tmov r8, " << m_IntegerLiteral.Buffer << "\n";
 	}
 
-	std::string NodeBinaryExpressionAdd::GenerateCode() const
+	void NodeBinaryExpressionAdd::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-
-		ss << m_Lhs->GenerateCode();
-		ss << "\tpush r8\n";
-		ss << m_Rhs->GenerateCode();
-		ss << "\tpop r9\n";
-		ss << "\tadd r8, r9\n";
-
-		return ss.str();
+		m_Lhs->GenerateCode(generator);
+		generator.Push("r8");
+		m_Rhs->GenerateCode(generator);
+		generator.Pop("r9");
+		generator << "\tadd r8, r9\n";
 	}
 
-	std::string NodeBinaryExpressionSubtract::GenerateCode() const
+	void NodeBinaryExpressionSubtract::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-
-		ss << m_Lhs->GenerateCode();
-		ss << "\tpush r8\n";
-		ss << m_Rhs->GenerateCode();
-		ss << "\tmov r9, r8\n";
-		ss << "\tpop r8\n";
-		ss << "\tsub r8, r9\n";
-
-		return ss.str();
+		m_Lhs->GenerateCode(generator);
+		generator.Push("r8");
+		m_Rhs->GenerateCode(generator);
+		generator << "\tmov r9, r8\n";
+		generator.Pop("r8");
+		generator << "\tsub r8, r9\n";
 	}
 
-	std::string NodeBinaryExpressionMultiply::GenerateCode() const
+	void NodeBinaryExpressionMultiply::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-
-		ss << m_Lhs->GenerateCode();
-		ss << "\tpush r8\n";
-		ss << m_Rhs->GenerateCode();
-		ss << "\tpop rax\n";
-		ss << "\timul rax, r8\n";
-		ss << "\tmov r8, rax\n";
-
-		return ss.str();
+		m_Lhs->GenerateCode(generator);
+		generator.Push("r8");
+		m_Rhs->GenerateCode(generator);
+		generator.Pop("r9");
+		generator << "\timul r8, r9\n";
 	}
 
-	std::string NodeBinaryExpressionDivide::GenerateCode() const
+	void NodeBinaryExpressionDivide::GenerateCode(CodeGenerator& generator) const
 	{
-		std::stringstream ss;
-
-		ss << m_Lhs->GenerateCode();
-		ss << "\tpush r8\n";
-		ss << m_Rhs->GenerateCode();
-		ss << "\tpop rax\n";
-		ss << "\tcdq\n";
-		ss << "\tidiv r8\n";
-		ss << "\tmov r8, rax\n";
-
-		return ss.str();
+		m_Lhs->GenerateCode(generator);
+		generator.Push("r8");
+		m_Rhs->GenerateCode(generator);
+		generator.Pop("rax");
+		generator << "\tcdq\n";
+		generator << "\tidiv r8\n";
+		generator << "\tmov r8, rax\n";
 	}
 
-	std::string NodeTermBracket::GenerateCode() const
+	void NodeTermBracket::GenerateCode(CodeGenerator& generator) const
 	{
-		return m_Expression->GenerateCode();
+		return m_Expression->GenerateCode(generator);
+	}
+
+	void NodeTermIdentifier::GenerateCode(CodeGenerator& generator) const
+	{
+		auto variable = generator.FindVariable(m_Identifier.Buffer);
+		if (!variable.has_value())
+			throw GeneratorError(fmt::format("Undeclared identifier `{}`", m_Identifier.Buffer), "", 1, 1);
+		generator << "\tmov r8, QWORD [rsp + " << (generator.GetStackSize() - variable->StackLocation - 1) * 8 << "]\n";
 	}
 
 }

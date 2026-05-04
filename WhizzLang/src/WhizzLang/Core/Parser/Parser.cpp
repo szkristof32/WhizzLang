@@ -114,7 +114,18 @@ namespace WhizzLang {
 				Consume();
 				NodeExpression* expression = ParseExpression();
 				TryConsume(TokenType::Semicolon);
-				NodeReturn* statement = new NodeReturn();
+				NodeStatement* statement = new NodeReturn();
+				statement->PushChild(expression);
+				return statement;
+			}
+			case TokenType::KeywordConst:
+			{
+				Consume();
+				const auto& name = TryConsume(TokenType::Identifier);
+				TryConsume(TokenType::Equal);
+				NodeExpression* expression = ParseExpression();
+				TryConsume(TokenType::Semicolon);
+				NodeStatement* statement = new NodeVariable(name);
 				statement->PushChild(expression);
 				return statement;
 			}
@@ -189,10 +200,15 @@ namespace WhizzLang {
 				NodeTerm* term = new NodeTermBracket(expression);
 				return term;
 			}
+			case TokenType::Identifier:
+			{
+				auto& identifier = Consume();
+				NodeTerm* term = new NodeTermIdentifier(identifier);
+				return term;
+			}
 		}
 
-		const auto& currentToken = GetCurrentToken();
-		throw ParserError("Unexpected token: Expected IntegerLiteral or OpenBraces", currentToken, m_Filename, currentToken.Line, currentToken.Column);
+		throw ParserError("Unexpected token: Expected IntegerLiteral or OpenBraces", std::nullopt, m_Filename, token->Line, token->Column);
 	}
 
 }

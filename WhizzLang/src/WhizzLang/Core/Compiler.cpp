@@ -3,6 +3,7 @@
 
 #include "WhizzLang/Errors/SyntaxError.h"
 #include "WhizzLang/Errors/ParserError.h"
+#include "WhizzLang/Errors/GeneratorError.h"
 
 #include "WhizzLang/Utils/FileUtils.h"
 #include "WhizzLang/Utils/StringUtils.h"
@@ -53,7 +54,22 @@ namespace WhizzLang {
 			return;
 		}
 
-		m_Assembly = m_Parser.GetProgram()->GenerateCode();
+		try
+		{
+			m_Parser.GetProgram()->GenerateCode(m_Generator);
+			m_Assembly = m_Generator.GetCode().str();
+		}
+		catch (GeneratorError error)
+		{
+			size_t line = error.GetLine();
+			size_t column = error.GetColumn();
+			auto lineStr = fmt::format("{}", line);
+
+			fmt::println(stderr, "Syntax error in {} at {}:{}: {}", error.GetFilename(), line, column, error.GetMessage());
+			fmt::println(stderr, " {} | {}", lineStr, m_Lines[line - 1]);
+			fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
+			return;
+		}
 	}
 
 	void Compiler::SplitSource()
