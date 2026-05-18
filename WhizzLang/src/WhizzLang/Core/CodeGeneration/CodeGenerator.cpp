@@ -53,4 +53,12 @@ namespace WhizzLang {
 		return std::nullopt;
 	}
 
+	size_t CodeGenerator::GetStackSize() const
+	{
+		size_t size = 0;
+		for (const auto& scope : m_Scopes)
+			size += scope.ScopeSize;
+		return size;
+	}
+
 }

@@ -36,7 +36,7 @@ namespace WhizzLang {
 
 		Scope& GetCurrentScope() { return m_Scopes.at(m_Scopes.size() - 1); }
 		const Scope& GetCurrentScope() const { return m_Scopes.at(m_Scopes.size() - 1); }
-		size_t GetStackSize() const { return GetCurrentScope().ScopeSize; }
+		size_t GetStackSize() const;
 		const std::stringstream& GetCode() const { return m_Code; }
 
 		template<typename _Ty>

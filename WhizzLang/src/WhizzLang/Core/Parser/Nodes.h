@@ -115,7 +115,10 @@ namespace WhizzLang {
 	{
 	public:
 		NodeTermBracket(NodeExpression* expression, const std::filesystem::path& filename, size_t line, size_t column)
-			: NodeTerm(filename, line, column), m_Expression(expression) {}
+			: NodeTerm(filename, line, column), m_Expression(expression)
+		{
+			m_Children.emplace_back(m_Expression);
+		}
 
 		virtual void GenerateCode(CodeGenerator& generator) const override;
 
@@ -141,7 +144,11 @@ namespace WhizzLang {
 	{
 	public:
 		NodeBinaryExpression(NodeExpression* lhs, NodeExpression* rhs, const std::filesystem::path& filename, size_t line, size_t column)
-			: NodeExpression(filename, line, column), m_Lhs(lhs), m_Rhs(rhs) {}
+			: NodeExpression(filename, line, column), m_Lhs(lhs), m_Rhs(rhs) 
+		{
+			m_Children.emplace_back(m_Lhs);
+			m_Children.emplace_back(m_Rhs);
+		}
 
 		NodeExpression* GetLhs() const { return m_Lhs; }
 		NodeExpression* GetRhs() const { return m_Rhs; }
