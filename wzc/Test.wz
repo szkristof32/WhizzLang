@@ -3,10 +3,14 @@ fn main() : int
 {
     // val = 24
     const val = 6 * (8 + 8) / 4;
-    if (val - 24)
+    if (val)
     {
         const val2 = val - 10;
         return val2 + val - 3;
+    }
+    else
+    {
+        return 10;
     }
     val = val + 2;
     return val;

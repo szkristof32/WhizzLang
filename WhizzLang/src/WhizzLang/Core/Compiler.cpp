@@ -28,13 +28,7 @@ namespace WhizzLang {
 		}
 		catch (SyntaxError error)
 		{
-			size_t line = error.GetLine();
-			size_t column = error.GetColumn();
-			auto lineStr = fmt::format("{}", line);
-
-			fmt::println(stderr, "Syntax error in {} at {}:{}: {}", error.GetFilename(), line, column, error.GetMessage());
-			fmt::println(stderr, " {} | {}", lineStr, m_Lines[line - 1]);
-			fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
+			PrintErrorMessage(error, error.GetMessage());
 			return;
 		}
 
@@ -44,13 +38,7 @@ namespace WhizzLang {
 		}
 		catch (ParserError error)
 		{
-			size_t line = error.GetLine();
-			size_t column = error.GetColumn();
-			auto lineStr = fmt::format("{}", line);
-
-			fmt::println(stderr, "Syntax error in {} at {}:{}: {}", error.GetFilename(), line, column, error.GetMessage());
-			fmt::println(stderr, " {} | {}", lineStr, m_Lines[line - 1]);
-			fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
+			PrintErrorMessage(error, error.GetMessage());
 			return;
 		}
 
@@ -61,13 +49,7 @@ namespace WhizzLang {
 		}
 		catch (GeneratorError error)
 		{
-			size_t line = error.GetLine();
-			size_t column = error.GetColumn();
-			auto lineStr = fmt::format("{}", line);
-
-			fmt::println(stderr, "Syntax error in {} at {}:{}: {}", error.GetFilename(), line, column, error.GetMessage());
-			fmt::println(stderr, " {} | {}", lineStr, m_Lines[line - 1]);
-			fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
+			PrintErrorMessage(error, error.GetMessage());
 			return;
 		}
 	}
@@ -82,6 +64,17 @@ namespace WhizzLang {
 			m_Lines.emplace_back(std::string_view(&m_Source[offset], eof - offset));
 			offset = eof + 1;
 		}
+	}
+
+	void Compiler::PrintErrorMessage(CompilerError error, const std::string_view message)
+	{
+		size_t line = error.GetLine();
+		size_t column = error.GetColumn();
+		auto lineStr = fmt::format("{}", line);
+
+		fmt::println(stderr, "Syntax error in {} at {}:{}: {}", error.GetFilename(), line, column, message);
+		fmt::println(stderr, " {} | {}", lineStr, m_Lines[line - 1]);
+		fmt::println(stderr, " {: >{}} | {: >{}}", "", lineStr.size(), "^", column);
 	}
 
 }

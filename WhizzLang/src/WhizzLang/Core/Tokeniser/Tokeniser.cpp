@@ -113,9 +113,8 @@ namespace WhizzLang {
 				}
 				case '\n':
 				{
-					m_Line++;
-					m_Column = 0;
 					Consume();
+					NewLine();
 					continue;
 				}
 			}
@@ -191,6 +190,12 @@ namespace WhizzLang {
 			m_Tokens.emplace_back(std::move(token));
 			return;
 		}
+		if (buffer == "else")
+		{
+			token.Type = TokenType::KeywordElse;
+			m_Tokens.emplace_back(std::move(token));
+			return;
+		}
 
 		token.Type = TokenType::Identifier;
 		token.Buffer = buffer;
@@ -226,6 +231,8 @@ namespace WhizzLang {
 				while (Peek() && Peek().value() != '\n')
 					Consume();
 				Consume();
+				NewLine();
+				
 				return false;
 			}
 			case '*':
@@ -233,7 +240,11 @@ namespace WhizzLang {
 				Consume();
 
 				while (Peek(1) && Peek().value() != '*' && Peek(1).value() != '/')
-					Consume();
+				{
+					char c = Consume();
+					if (c == '\n')
+						NewLine();
+				}
 				Consume();
 				Consume();
 				return false;
@@ -241,6 +252,12 @@ namespace WhizzLang {
 		}
 
 		return true;
+	}
+
+	void Tokeniser::NewLine()
+	{
+		m_Line++;
+		m_Column = 1;
 	}
 
 }

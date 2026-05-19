@@ -4,6 +4,8 @@
 #include "WhizzLang/Core/Parser/Parser.h"
 #include "WhizzLang/Core/CodeGeneration/CodeGenerator.h"
 
+#include "WhizzLang/Errors/CompilerError.h"
+
 #include "string_view.h"
 
 namespace WhizzLang {
@@ -25,6 +27,7 @@ namespace WhizzLang {
 		std::string_view GetAssembly() const { return m_Assembly; }
 	private:
 		void SplitSource();
+		void PrintErrorMessage(CompilerError error, const std::string_view message);
 	private:
 		CompilerConfiguration m_Configuration;
 		std::string m_Source;

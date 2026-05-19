@@ -63,6 +63,14 @@ namespace WhizzLang {
 
 	void NodeIf::GenerateCode(CodeGenerator& generator) const
 	{
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
+	}
+
+	void NodeIfThen::GenerateCode(CodeGenerator& generator) const
+	{
 		Node* predicate = m_Children[0];
 		Node* scope = m_Children[1];
 
@@ -77,6 +85,14 @@ namespace WhizzLang {
 		scope->GenerateCode(generator);
 
 		generator << label << ":\n";
+	}
+
+	void NodeIfElse::GenerateCode(CodeGenerator& generator) const
+	{
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
 	}
 
 	void NodeAssign::GenerateCode(CodeGenerator& generator) const

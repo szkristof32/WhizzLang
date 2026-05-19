@@ -155,15 +155,7 @@ namespace WhizzLang {
 			}
 			case TokenType::KeywordIf:
 			{
-				Consume();
-				TryConsume(TokenType::OpenBracket);
-				NodeExpression* expression = ParseExpression();
-				TryConsume(TokenType::CloseBracket);
-				NodeScope* scope = ParseScope();
-				NodeStatement* statement = new NodeIf(metadata);
-				statement->PushChild(expression);
-				statement->PushChild(scope);
-				return statement;
+				return ParseIf();
 			}
 			case TokenType::Identifier:
 			{
@@ -179,6 +171,38 @@ namespace WhizzLang {
 
 		const auto& currentToken = GetCurrentToken();
 		throw ParserError("Invalid token: Unexpected Statement", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
+	}
+
+	NodeStatement* Parser::ParseIf()
+	{
+		NodeStatement* statement = new NodeIf(metadata);
+
+		{
+			Consume();
+			NodeStatement* statementIf = new NodeIfThen(metadata);
+
+			TryConsume(TokenType::OpenBracket);
+			NodeExpression* expression = ParseExpression();
+			TryConsume(TokenType::CloseBracket);
+			NodeScope* scope = ParseScope();
+			statementIf->PushChild(expression);
+			statementIf->PushChild(scope);
+
+			statement->PushChild(statementIf);
+		}
+
+		if (Peek().has_value() && Peek()->Type == TokenType::KeywordElse)
+		{
+			Consume();
+			NodeStatement* statementElse = new NodeIfElse(metadata);
+
+			NodeScope* scope = ParseScope();
+			statementElse->PushChild(scope);
+
+			statement->PushChild(statementElse);
+		}
+
+		return statement;
 	}
 
 	NodeExpression* Parser::ParseExpression(uint32_t minPrecedence)
