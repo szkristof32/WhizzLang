@@ -63,10 +63,15 @@ namespace WhizzLang {
 
 	void NodeIf::GenerateCode(CodeGenerator& generator) const
 	{
+		size_t endLabelIndex = generator.NewLabel();
+
 		for (const auto& child : m_Children)
 		{
+			generator.SetLabelContext(endLabelIndex);
 			child->GenerateCode(generator);
 		}
+
+		generator << fmt::format(".LB{:03}", endLabelIndex) << ":\n";
 	}
 
 	void NodeIfThen::GenerateCode(CodeGenerator& generator) const
@@ -74,17 +79,21 @@ namespace WhizzLang {
 		Node* predicate = m_Children[0];
 		Node* scope = m_Children[1];
 
-		size_t labelIndex = generator.NewLabel();
-		auto label = fmt::format(".LB{:03}", labelIndex);
+		size_t elseLabelIndex = generator.NewLabel();
+		size_t endLabelIndex = generator.GetLabelContext();
+
+		auto elseLabel = fmt::format(".LB{:03}", elseLabelIndex);
+		auto endLabel = fmt::format(".LB{:03}", endLabelIndex);
 
 		predicate->GenerateCode(generator);
 
 		generator << "\tcmp r8, 0\n";
-		generator << "\tje " << label << "\n";
+		generator << "\tje " << elseLabel << "\n";
 
 		scope->GenerateCode(generator);
 
-		generator << label << ":\n";
+		generator << "\tjmp " << endLabel << "\n";
+		generator << elseLabel << ":\n";
 	}
 
 	void NodeIfElse::GenerateCode(CodeGenerator& generator) const

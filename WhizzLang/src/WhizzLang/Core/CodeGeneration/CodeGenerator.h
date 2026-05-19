@@ -42,6 +42,9 @@ namespace WhizzLang {
 
 		size_t NewLabel() { return m_LabelIndex++; }
 
+		void SetLabelContext(size_t label) { m_LabelContext = label; }
+		size_t GetLabelContext() const { return m_LabelContext; }
+
 		const std::stringstream& GetCode() const { return m_Code; }
 
 		template<typename _Ty>
@@ -56,6 +59,8 @@ namespace WhizzLang {
 
 		size_t m_ScopeIndex = 0;
 		size_t m_LabelIndex = 0;
+
+		size_t m_LabelContext = 0;
 	};
 
 }
