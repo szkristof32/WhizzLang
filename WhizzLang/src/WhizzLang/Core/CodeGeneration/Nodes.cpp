@@ -43,7 +43,7 @@ namespace WhizzLang {
 		}
 
 		generator << "\tmov rax, r8\n";
-		generator.EndFunction();
+		generator.EndFunction(false);
 		generator << "\tret\n";
 	}
 
@@ -51,7 +51,7 @@ namespace WhizzLang {
 	{
 		if (generator.FindVariable(m_Identifier.Buffer).has_value())
 			throw GeneratorError("Variable already defined", m_Filename, m_Line, m_Column);
-		generator.PushVariable(m_Identifier.Buffer);
+		generator.DeclareVariable(m_Identifier.Buffer);
 
 		for (const auto& child : m_Children)
 		{
@@ -142,12 +142,10 @@ namespace WhizzLang {
 
 		generator << "\tcmp r8, 0\n";
 		generator << "\tje " << label << "\n";
-		generator.BeginIf();
 
 		scope->GenerateCode(generator);
 
 		generator << label << ":\n";
-		generator.Pop();
 	}
 
 }

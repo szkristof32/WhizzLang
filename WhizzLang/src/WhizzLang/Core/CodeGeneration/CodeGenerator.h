@@ -13,6 +13,7 @@ namespace WhizzLang {
 		struct Scope
 		{
 			size_t StackLocation;
+			size_t ScopeSize;
 			std::vector<Variable> Variables;
 		};
 		struct Function
@@ -23,12 +24,25 @@ namespace WhizzLang {
 		};
 	public:
 		void StartFunction(const std::string& name);
-		void EndFunction();
+		void EndFunction(bool final = true);
 
 		size_t PushScope();
 		void PopScope(size_t index);
 
-		std::optional<Scope> GetCurrentScope();
+		void DeclareVariable(const std::string& name);
+		std::optional<Variable> FindVariable(const std::string& name) const;
+
+		void Push(const std::string_view reg);
+		void Push(size_t count = 1);
+		void Pop(const std::string_view reg);
+		void Pop(size_t count = 1, bool final = true);
+
+		std::optional<Scope*> GetCurrentScope();
+		size_t GetStackSize() const;
+
+		size_t NewLabel() { return m_LabelIndex++; }
+
+		const std::stringstream& GetCode() const { return m_Code; }
 
 		template<typename _Ty>
 		CodeGenerator& operator<<(const _Ty& rhs)

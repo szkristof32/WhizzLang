@@ -4,7 +4,7 @@ fn main() : int
     if (val)
     {
         const val2 = val - 10;
-        return val2;
+        return val2 + val - 3;
     }
     return val;
 }
