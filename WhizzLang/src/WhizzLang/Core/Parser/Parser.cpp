@@ -165,6 +165,16 @@ namespace WhizzLang {
 				statement->PushChild(scope);
 				return statement;
 			}
+			case TokenType::Identifier:
+			{
+				Token identifier = Consume();
+				TryConsume(TokenType::Equal);
+				NodeExpression* expression = ParseExpression();
+				TryConsume(TokenType::Semicolon);
+				NodeStatement* statement = new NodeAssign(identifier, metadata);
+				statement->PushChild(expression);
+				return statement;
+			}
 		}
 
 		const auto& currentToken = GetCurrentToken();

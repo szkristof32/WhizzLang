@@ -61,6 +61,38 @@ namespace WhizzLang {
 		generator.Push("r8");
 	}
 
+	void NodeIf::GenerateCode(CodeGenerator& generator) const
+	{
+		Node* predicate = m_Children[0];
+		Node* scope = m_Children[1];
+
+		size_t labelIndex = generator.NewLabel();
+		auto label = fmt::format(".LB{:03}", labelIndex);
+
+		predicate->GenerateCode(generator);
+
+		generator << "\tcmp r8, 0\n";
+		generator << "\tje " << label << "\n";
+
+		scope->GenerateCode(generator);
+
+		generator << label << ":\n";
+	}
+
+	void NodeAssign::GenerateCode(CodeGenerator& generator) const
+	{
+		auto variable = generator.FindVariable(m_Identifier.Buffer);
+		if (!variable.has_value())
+			throw GeneratorError(fmt::format("Undeclared identifier `{}`", m_Identifier.Buffer), m_Filename, m_Line, m_Column);
+
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
+
+		generator << "\tmov QWORD [rsp + " << (generator.GetStackSize() - variable->StackLocation - 1) * 8 << "], r8\n";
+	}
+
 	void NodeTermIntegerLiteral::GenerateCode(CodeGenerator& generator) const
 	{
 		generator << "\tmov r8, " << m_IntegerLiteral.Buffer << "\n";
@@ -128,24 +160,6 @@ namespace WhizzLang {
 		}
 
 		generator.PopScope(currentScope);
-	}
-
-	void NodeIf::GenerateCode(CodeGenerator& generator) const
-	{
-		Node* predicate = m_Children[0];
-		Node* scope = m_Children[1];
-
-		size_t labelIndex = generator.NewLabel();
-		auto label = fmt::format(".LB{:03}", labelIndex);
-
-		predicate->GenerateCode(generator);
-
-		generator << "\tcmp r8, 0\n";
-		generator << "\tje " << label << "\n";
-
-		scope->GenerateCode(generator);
-
-		generator << label << ":\n";
 	}
 
 }

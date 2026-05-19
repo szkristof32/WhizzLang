@@ -94,6 +94,20 @@ namespace WhizzLang {
 		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
+	class NodeAssign : public NodeStatement
+	{
+	public:
+		NodeAssign(const Token& identifier, const std::filesystem::path& filename, size_t line, size_t column)
+			: NodeStatement(filename, line, column), m_Identifier(identifier) {
+		}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+
+		const Token& GetIdentifier() const { return m_Identifier; }
+	private:
+		Token m_Identifier;
+	};
+
 	class NodeExpression : public Node
 	{
 	public:
