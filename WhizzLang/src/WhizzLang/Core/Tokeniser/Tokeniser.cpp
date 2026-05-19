@@ -245,7 +245,7 @@ namespace WhizzLang {
 			{
 				Consume();
 
-				while (Peek(1) && Peek().value() != '*' && Peek(1).value() != '/')
+				while (Peek(1) && !(Peek().value() == '*' && Peek(1).value() == '/'))
 				{
 					char c = Consume();
 					if (c == '\n')

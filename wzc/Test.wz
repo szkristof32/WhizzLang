@@ -10,6 +10,7 @@ fn main() : int
     }
     else if (0)
     {
+        /* comment * with star */
         return 42;
     }
     val = val + 2;
