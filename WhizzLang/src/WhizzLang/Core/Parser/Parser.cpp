@@ -194,12 +194,21 @@ namespace WhizzLang {
 		if (Peek().has_value() && Peek()->Type == TokenType::KeywordElse)
 		{
 			Consume();
-			NodeStatement* statementElse = new NodeIfElse(metadata);
 
-			NodeScope* scope = ParseScope();
-			statementElse->PushChild(scope);
+			if (Peek().has_value() && Peek()->Type == TokenType::KeywordIf)
+			{
+				NodeStatement* statementIf = ParseIf();
+				statement->PushChild(statementIf);
+			}
+			else
+			{
+				NodeStatement* statementElse = new NodeIfElse(metadata);
 
-			statement->PushChild(statementElse);
+				NodeScope* scope = ParseScope();
+				statementElse->PushChild(scope);
+
+				statement->PushChild(statementElse);
+			}
 		}
 
 		return statement;
