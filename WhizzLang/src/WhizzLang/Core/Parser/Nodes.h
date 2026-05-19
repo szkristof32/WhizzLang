@@ -86,6 +86,14 @@ namespace WhizzLang {
 		Token m_Identifier;
 	};
 
+	class NodeIf : public NodeStatement
+	{
+	public:
+		NodeIf(const std::filesystem::path& filename, size_t line, size_t column) : NodeStatement(filename, line, column) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	};
+
 	class NodeExpression : public Node
 	{
 	public:

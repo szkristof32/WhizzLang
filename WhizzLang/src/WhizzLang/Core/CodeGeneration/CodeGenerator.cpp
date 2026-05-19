@@ -3,7 +3,7 @@
 
 namespace WhizzLang {
 
-	void CodeGenerator::OpenScope()
+	size_t CodeGenerator::OpenScope()
 	{
 		Scope scope{};
 		if (!m_Scopes.empty())
@@ -11,22 +11,37 @@ namespace WhizzLang {
 			const auto& lastScope = GetCurrentScope();
 			scope.StackLocation = lastScope.StackLocation + lastScope.ScopeSize;
 		}
+		if (m_IfBegined)
+		{
+			scope.ScopeSize++;
+			m_IfBegined = false;
+		}
 		m_Scopes.emplace_back(std::move(scope));
+
+		m_Code << "; start of scope no. " << m_Scopes.size() - 1 << "\n";
+
+		return m_Scopes.size() - 1;
 	}
 
-	void CodeGenerator::CloseScope()
+	void CodeGenerator::CloseScope(size_t index)
 	{
-		if (m_Scopes.empty())
+		if (m_Scopes.empty() || index >= m_Scopes.size())
 			return;
 
 		auto& scope = GetCurrentScope();
 
-		for (auto& var : scope.Variables)
-		{
-			Pop("r9");
-		}
+		m_Code << "\tsub rsp, " << scope.ScopeSize * 4 << "\n";
+		m_Code << "; end of scope no. " << m_Scopes.size() - 1 << "\n";
 
 		m_Scopes.erase(m_Scopes.end() - 1);
+	}
+
+	void CodeGenerator::CloseAllScopes()
+	{
+		for (size_t i = m_Scopes.size(); i > 0; i--)
+		{
+			CloseScope(i - 1);
+		}
 	}
 
 	void CodeGenerator::PushVariable(const std::string& name)

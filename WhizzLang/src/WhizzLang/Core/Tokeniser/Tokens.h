@@ -5,7 +5,7 @@ namespace WhizzLang {
 	enum class TokenType
 	{
 		None = 0,
-		KeywordFn, KeywordInt, KeywordReturn, KeywordConst,
+		KeywordFn, KeywordInt, KeywordReturn, KeywordConst, KeywordIf,
 		Identifier,
 		OpenBracket, CloseBracket, OpenBrace, CloseBrace,
 		Colon, Semicolon,

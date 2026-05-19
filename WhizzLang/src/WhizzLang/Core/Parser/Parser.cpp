@@ -153,6 +153,18 @@ namespace WhizzLang {
 				statement->PushChild(expression);
 				return statement;
 			}
+			case TokenType::KeywordIf:
+			{
+				Consume();
+				TryConsume(TokenType::OpenBracket);
+				NodeExpression* expression = ParseExpression();
+				TryConsume(TokenType::CloseBracket);
+				NodeScope* scope = ParseScope();
+				NodeStatement* statement = new NodeIf(metadata);
+				statement->PushChild(expression);
+				statement->PushChild(scope);
+				return statement;
+			}
 		}
 
 		const auto& currentToken = GetCurrentToken();
