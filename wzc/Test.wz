@@ -1,6 +1,7 @@
 fn main() : int
 {
     const val = 6 * (8 + 8) / 4;
+    if (val)
     {
         const val2 = val - 10;
         return val2;

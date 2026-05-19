@@ -3,10 +3,48 @@
 
 namespace WhizzLang {
 
+#if 0
+
+	size_t CodeGenerator::OpenFunction()
+	{
+		Function function{};
+		if (!m_Functions.empty())
+		{
+			const auto& lastFunction = GetCurrentFunction();
+			function.StackLocation = lastFunction.StackLocation + lastFunction.FunctionSize;
+		}
+		m_Functions.emplace_back(std::move(function));
+
+		m_Code << "; start of function no. " << m_Functions.size() - 1 << "\n";
+
+		return m_Functions.size() - 1;
+	}
+
+	void CodeGenerator::CloseFunction(size_t index, bool final)
+	{
+		if (m_Functions.empty() || index >= m_Functions.size())
+			return;
+
+		if (final)
+		{
+			m_Functions.erase(m_Functions.end() - 1);
+			return;
+		}
+
+		auto& function = GetCurrentFunction();
+
+		for (size_t i = function.Scopes.size(); i > 0; i--)
+		{
+			CloseScope(i - 1, final);
+		}
+	}
+
 	size_t CodeGenerator::OpenScope()
 	{
+		auto& currentFunction = GetCurrentFunction();
+
 		Scope scope{};
-		if (!m_Scopes.empty())
+		if (!currentFunction.Scopes.empty())
 		{
 			const auto& lastScope = GetCurrentScope();
 			scope.StackLocation = lastScope.StackLocation + lastScope.ScopeSize;
@@ -16,32 +54,33 @@ namespace WhizzLang {
 			scope.ScopeSize++;
 			m_IfBegined = false;
 		}
-		m_Scopes.emplace_back(std::move(scope));
+		currentFunction.Scopes.emplace_back(std::move(scope));
 
-		m_Code << "; start of scope no. " << m_Scopes.size() - 1 << "\n";
+		m_Code << "; start of scope no. " << currentFunction.Scopes.size() - 1 << "\n";
 
-		return m_Scopes.size() - 1;
+		return currentFunction.Scopes.size() - 1;
 	}
 
-	void CodeGenerator::CloseScope(size_t index)
+	void CodeGenerator::CloseScope(size_t index, bool final)
 	{
-		if (m_Scopes.empty() || index >= m_Scopes.size())
+		if (m_Functions.empty())
+			return;
+
+		auto& currentFunction = GetCurrentFunction();
+
+		if (final)
+		{
+			currentFunction.Scopes.erase(currentFunction.Scopes.end() - 1);
+			return;
+		}
+
+		if (currentFunction.Scopes.empty() || index >= currentFunction.Scopes.size())
 			return;
 
 		auto& scope = GetCurrentScope();
 
-		m_Code << "\tsub rsp, " << scope.ScopeSize * 4 << "\n";
-		m_Code << "; end of scope no. " << m_Scopes.size() - 1 << "\n";
-
-		m_Scopes.erase(m_Scopes.end() - 1);
-	}
-
-	void CodeGenerator::CloseAllScopes()
-	{
-		for (size_t i = m_Scopes.size(); i > 0; i--)
-		{
-			CloseScope(i - 1);
-		}
+		m_Code << "\tsub rsp, " << scope.ScopeSize * 8 << "\n";
+		m_Code << "; end of scope no. " << currentFunction.Scopes.size() - 1 << "\n";
 	}
 
 	void CodeGenerator::PushVariable(const std::string& name)
@@ -52,14 +91,19 @@ namespace WhizzLang {
 
 	std::optional<CodeGenerator::Variable> CodeGenerator::FindVariable(const std::string& name) const
 	{
-		for (auto it = m_Scopes.rbegin(); it != m_Scopes.rend(); it++)
+		if (m_Functions.empty())
+			return std::nullopt;
+
+		const auto& currentFunction = GetCurrentFunction();
+
+		for (auto it = currentFunction.Scopes.rbegin(); it != currentFunction.Scopes.rend(); it++)
 		{
 			const auto& scope = *it;
 
 			auto scopeIt = std::find_if(scope.Variables.begin(), scope.Variables.end(), [&name](const Variable& variable)
-			{
-				return variable.Name == name;
-			});
+				{
+					return variable.Name == name;
+				});
 
 			if (scopeIt != scope.Variables.end())
 				return *scopeIt;
@@ -71,9 +115,61 @@ namespace WhizzLang {
 	size_t CodeGenerator::GetStackSize() const
 	{
 		size_t size = 0;
-		for (const auto& scope : m_Scopes)
-			size += scope.ScopeSize;
+		for (const auto& function : m_Functions)
+			for (const auto& scope : function.Scopes)
+				size += scope.ScopeSize;
 		return size;
+	}
+
+#endif
+
+	void CodeGenerator::StartFunction(const std::string& name)
+	{
+		if (m_CurrentFunction.has_value())
+			throw "You must close the previous function before opening a new one!";
+
+		m_CurrentFunction = Function{};
+		m_CurrentFunction->Name = name;
+	}
+
+	void CodeGenerator::EndFunction()
+	{
+		m_CurrentFunction = std::nullopt;
+		m_ScopeIndex = m_LabelIndex = 0;
+	}
+
+	size_t CodeGenerator::PushScope()
+	{
+		if (!m_CurrentFunction.has_value())
+			throw "You must be in a function!";
+
+		auto currentScope = GetCurrentScope();
+		
+		Scope scope{};
+		if (currentScope.has_value())
+		{
+			scope.StackLocation = currentScope->StackLocation + currentScope->Variables.size();
+		}
+
+		m_Code << "; start of scope no. " << m_ScopeIndex++ << "\n";
+
+		m_CurrentFunction->Scopes.emplace_back(scope);
+	}
+
+	void CodeGenerator::PopScope(size_t index)
+	{
+		if (!m_CurrentFunction.has_value() || index >= m_CurrentFunction->Scopes.size())
+			return;
+
+		m_CurrentFunction->Scopes.pop_back();
+	}
+
+	std::optional<CodeGenerator::Scope> CodeGenerator::GetCurrentScope()
+	{
+		if (!m_CurrentFunction.has_value() || m_CurrentFunction->Scopes.empty())
+			return std::nullopt;
+
+		return m_CurrentFunction->Scopes.back();
 	}
 
 }

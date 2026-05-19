@@ -19,18 +19,20 @@ namespace WhizzLang {
 		{
 			child->GenerateCode(generator);
 		}
-
-		generator.CloseAllScopes();
 	}
 
 	void NodeFunction::GenerateCode(CodeGenerator& generator) const
 	{
+		generator.StartFunction(m_Identifier.Buffer);
+
 		generator << m_Identifier.Buffer << ":\n";
 		
 		for (const auto& child : m_Children)
 		{
 			child->GenerateCode(generator);
 		}
+
+		generator.EndFunction();
 	}
 
 	void NodeReturn::GenerateCode(CodeGenerator& generator) const
@@ -41,7 +43,7 @@ namespace WhizzLang {
 		}
 
 		generator << "\tmov rax, r8\n";
-		generator.CloseScope(generator.GetCurrentScopeIndex());
+		generator.EndFunction();
 		generator << "\tret\n";
 	}
 
@@ -118,14 +120,14 @@ namespace WhizzLang {
 
 	void NodeScope::GenerateCode(CodeGenerator& generator) const
 	{
-		size_t currentScope = generator.OpenScope();
+		size_t currentScope = generator.PushScope();
 
 		for (const auto& child : m_Children)
 		{
 			child->GenerateCode(generator);
 		}
 
-		generator.CloseScope(currentScope);
+		generator.PopScope(currentScope);
 	}
 
 	void NodeIf::GenerateCode(CodeGenerator& generator) const
