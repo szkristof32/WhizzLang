@@ -6,7 +6,7 @@ namespace WhizzLang {
 	{
 		None = 0,
 		KeywordFn, KeywordInt, KeywordReturn, KeywordConst,
-		KeywordIf, KeywordElse,
+		KeywordIf, KeywordElse, KeywordWhile,
 		Identifier,
 		OpenBracket, CloseBracket, OpenBrace, CloseBrace,
 		Colon, Semicolon,

@@ -110,6 +110,14 @@ namespace WhizzLang {
 		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
+	class NodeWhile : public NodeStatement
+	{
+	public:
+		NodeWhile(const std::filesystem::path& filename, size_t line, size_t column) : NodeStatement(filename, line, column) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	};
+
 	class NodeAssign : public NodeStatement
 	{
 	public:

@@ -95,6 +95,34 @@ namespace WhizzLang {
 		}
 	}
 
+	void NodeWhile::GenerateCode(CodeGenerator& generator) const
+	{
+		Node* predicate = m_Children[0];
+		Node* scope = m_Children[1];
+
+		size_t startLabelIndex = generator.NewLabel();
+		size_t endLabelIndex = generator.NewLabel();
+
+		auto startLabel = fmt::format(".LB{:03}", startLabelIndex);
+		auto endLabel = fmt::format(".LB{:03}", endLabelIndex);
+
+		predicate->GenerateCode(generator);
+
+		generator << "\tcmp r8, 0\n";
+		generator << "\tje " << endLabel << "\n";
+
+		generator << startLabel << ":\n";
+
+		scope->GenerateCode(generator);
+
+		predicate->GenerateCode(generator);
+
+		generator << "\tcmp r8, 0\n";
+		generator << "\tjne " << startLabel << "\n";
+
+		generator << endLabel << ":\n";
+	}
+
 	void NodeAssign::GenerateCode(CodeGenerator& generator) const
 	{
 		auto variable = generator.FindVariable(m_Identifier.Buffer);

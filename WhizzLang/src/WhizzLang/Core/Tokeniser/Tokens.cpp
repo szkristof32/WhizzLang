@@ -13,6 +13,7 @@ namespace WhizzLang {
 			case TokenType::KeywordConst:	return "KeywordConst";
 			case TokenType::KeywordIf:		return "KeywordIf";
 			case TokenType::KeywordElse:	return "KeywordElse";
+			case TokenType::KeywordWhile:	return "KeywordWhile";
 			case TokenType::Identifier:		return "Identifier";
 			case TokenType::OpenBracket:	return "OpenBracket";
 			case TokenType::CloseBracket:	return "CloseBracket";

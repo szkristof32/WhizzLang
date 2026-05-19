@@ -157,6 +157,18 @@ namespace WhizzLang {
 			{
 				return ParseIf();
 			}
+			case TokenType::KeywordWhile:
+			{
+				Consume();
+				TryConsume(TokenType::OpenBracket);
+				NodeExpression* expression = ParseExpression();
+				TryConsume(TokenType::CloseBracket);
+				NodeScope* scope = ParseScope();
+				NodeStatement* statement = new NodeWhile(metadata);
+				statement->PushChild(expression);
+				statement->PushChild(scope);
+				return statement;
+			}
 			case TokenType::Identifier:
 			{
 				Token identifier = Consume();

@@ -196,6 +196,12 @@ namespace WhizzLang {
 			m_Tokens.emplace_back(std::move(token));
 			return;
 		}
+		if (buffer == "while")
+		{
+			token.Type = TokenType::KeywordWhile;
+			m_Tokens.emplace_back(std::move(token));
+			return;
+		}
 
 		token.Type = TokenType::Identifier;
 		token.Buffer = buffer;
