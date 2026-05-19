@@ -95,6 +95,11 @@ namespace WhizzLang {
 				case '/':
 				{
 					Consume();
+
+					bool shouldTokenise = HandleComments();
+					if (!shouldTokenise)
+						continue;
+
 					token.Type = TokenType::Slash;
 					m_Tokens.emplace_back(std::move(token));
 					continue;
@@ -205,6 +210,37 @@ namespace WhizzLang {
 		token.Type = TokenType::IntegerLiteral;
 		token.Buffer = buffer;
 		m_Tokens.emplace_back(std::move(token));
+	}
+
+	bool Tokeniser::HandleComments()
+	{
+		if (!Peek().has_value())
+			return true;
+
+		switch (Peek().value())
+		{
+			case '/':
+			{
+				Consume();
+
+				while (Peek() && Peek().value() != '\n')
+					Consume();
+				Consume();
+				return false;
+			}
+			case '*':
+			{
+				Consume();
+
+				while (Peek(1) && Peek().value() != '*' && Peek(1).value() != '/')
+					Consume();
+				Consume();
+				Consume();
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 }

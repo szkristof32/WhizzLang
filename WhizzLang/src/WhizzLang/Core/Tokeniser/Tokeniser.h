@@ -24,6 +24,7 @@ namespace WhizzLang {
 
 		void TokeniseAlnum();
 		void TokeniseNumeric();
+		bool HandleComments();
 	private:
 		std::string_view m_Source;
 		std::string_view m_Filename;

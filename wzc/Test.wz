@@ -1,5 +1,7 @@
+// The entry point of the program
 fn main() : int
 {
+    // val = 24
     const val = 6 * (8 + 8) / 4;
     if (val - 24)
     {
