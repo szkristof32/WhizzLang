@@ -81,12 +81,14 @@ namespace WhizzLang {
 	{
 		Consume();
 		auto& identifier = TryConsume(TokenType::Identifier);
-		TryConsume({ TokenType::OpenBracket, TokenType::CloseBracket });
+		TryConsume(TokenType::OpenBracket);
+		NodeArgumentList* argumentList = ParseArgumentList();
+		TryConsume(TokenType::CloseBracket);
 		TryConsume(TokenType::Colon);
 		auto& returnType = TryConsume(TokenType::KeywordInt);
-		NodeFunction* fn = new NodeFunction(identifier, returnType, metadata);
-
 		NodeScope* scope = ParseScope();
+		NodeFunction* fn = new NodeFunction(identifier, returnType, metadata);
+		fn->PushChild(argumentList);
 		fn->PushChild(scope);
 
 		return fn;
@@ -243,10 +245,24 @@ namespace WhizzLang {
 			}
 			case TokenType::OpenBracket:
 			{
-				Consume();
-				TryConsume(TokenType::CloseBracket);
-				TryConsume(TokenType::Semicolon);
+				NodeCallArgumentList* arguments = new NodeCallArgumentList(metadata);
+
 				NodeStatement* statement = new NodeStatementFunctionCall(identifier, metadata);
+				statement->PushChild(arguments);
+
+				Consume();
+				while (Peek().has_value() && Peek()->Type != TokenType::CloseBracket)
+				{
+					NodeExpression* expression = ParseExpression();
+					arguments->PushChild(expression);
+
+					if (Peek().has_value() && Peek()->Type == TokenType::Comma)
+						Consume();
+				}
+				Consume();
+
+				TryConsume(TokenType::Semicolon);
+
 				return statement;
 			}
 		}
@@ -326,10 +342,22 @@ namespace WhizzLang {
 
 				if (Peek().has_value() && Peek()->Type == TokenType::OpenBracket)
 				{
-					Consume();
-					TryConsume(TokenType::CloseBracket);
-					
+					NodeCallArgumentList* arguments = new NodeCallArgumentList(metadata);
+
 					NodeTerm* term = new NodeTermFunctionCall(identifier, metadata);
+					term->PushChild(arguments);
+
+					Consume();
+					while (Peek().has_value() && Peek()->Type != TokenType::CloseBracket)
+					{
+						NodeExpression* expression = ParseExpression();
+						arguments->PushChild(expression);
+
+						if (Peek().has_value() && Peek()->Type == TokenType::Comma)
+							Consume();
+					}
+					Consume();
+					
 					return term;
 				}
 
@@ -339,6 +367,25 @@ namespace WhizzLang {
 		}
 
 		throw ParserError("Unexpected token: Expected IntegerLiteral or OpenBraces", std::nullopt, m_Filename, token->Line, token->Column);
+	}
+
+	NodeArgumentList* Parser::ParseArgumentList()
+	{
+		NodeArgumentList* arguments = new NodeArgumentList(metadata);
+
+		while (Peek().has_value() && Peek()->Type != TokenType::CloseBracket)
+		{
+			auto& identifier = TryConsume(TokenType::Identifier);
+			TryConsume(TokenType::Colon);
+			auto& type = TryConsume(TokenType::KeywordInt);
+			NodeArgument* argument = new NodeArgument(identifier, type, metadata);
+			arguments->PushChild(argument);
+
+			if (Peek().has_value() && Peek()->Type == TokenType::Comma)
+				Consume();
+		}
+
+		return arguments;
 	}
 
 }

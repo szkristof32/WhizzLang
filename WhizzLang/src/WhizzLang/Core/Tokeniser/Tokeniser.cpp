@@ -43,6 +43,13 @@ namespace WhizzLang {
 					m_Tokens.emplace_back(std::move(token));
 					continue;
 				}
+				case ',':
+				{
+					Consume();
+					token.Type = TokenType::Comma;
+					m_Tokens.emplace_back(std::move(token));
+					continue;
+				}
 				case '(':
 				{
 					Consume();

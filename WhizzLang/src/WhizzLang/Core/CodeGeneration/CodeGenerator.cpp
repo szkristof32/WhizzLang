@@ -138,8 +138,10 @@ namespace WhizzLang {
 			return;
 
 		size_t stackSize = 0;
-		for (const auto& scope:m_CurrentFunction->Scopes)
+		for (const auto& scope : m_CurrentFunction->Scopes)
 			stackSize += scope.ScopeSize;
+		if (!m_CurrentFunction->Scopes.empty())
+			stackSize -= m_CurrentFunction->Scopes[0].ScopeSize;
 		Pop(stackSize, final);
 
 		if (final)
@@ -177,10 +179,10 @@ namespace WhizzLang {
 		Pop(scope.ScopeSize);
 		m_Code << "; end of scope no. " << index << "\n";
 
-		m_CurrentFunction->Scopes.pop_back();
+		m_CurrentFunction->Scopes.erase(m_CurrentFunction->Scopes.begin() + index);
 	}
 
-	void CodeGenerator::DeclareVariable(const std::string& name)
+	void CodeGenerator::DeclareVariable(const std::string& name, bool growStack)
 	{
 		auto opt = GetCurrentScope();
 		if (!opt.has_value())
@@ -192,6 +194,9 @@ namespace WhizzLang {
 		variable.Name = name;
 		variable.StackLocation = scope->StackLocation + scope->ScopeSize;
 		scope->Variables.emplace_back(variable);
+
+		if (growStack)
+			scope->ScopeSize++;
 	}
 
 	std::optional<CodeGenerator::Variable> CodeGenerator::FindVariable(const std::string& name) const

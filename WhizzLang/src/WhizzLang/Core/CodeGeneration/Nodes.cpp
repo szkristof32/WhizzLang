@@ -24,15 +24,58 @@ namespace WhizzLang {
 	void NodeFunction::GenerateCode(CodeGenerator& generator) const
 	{
 		generator.StartFunction(m_Identifier.Buffer);
+		size_t scope = generator.PushScope();
 
 		generator << m_Identifier.Buffer << ":\n";
-		
+
 		for (const auto& child : m_Children)
 		{
 			child->GenerateCode(generator);
 		}
 
+		generator.PopScope(scope);
 		generator.EndFunction();
+	}
+
+	void NodeScope::GenerateCode(CodeGenerator& generator) const
+	{
+		size_t currentScope = generator.PushScope();
+
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
+
+		generator.PopScope(currentScope);
+	}
+
+	void NodeArgumentList::GenerateCode(CodeGenerator& generator) const
+	{
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+		}
+
+		generator.DeclareVariable("__retAddr__", true);
+	}
+
+	void NodeArgument::GenerateCode(CodeGenerator& generator) const
+	{
+		generator.DeclareVariable(m_Identifier.Buffer, true);
+	}
+
+	void NodeCallArgumentList::GenerateCode(CodeGenerator& generator) const
+	{
+		for (const auto& child : m_Children)
+		{
+			child->GenerateCode(generator);
+			generator.Push("r8");
+		}
+	}
+
+	void NodeCallArgumentList::GenerateCleanupCode(CodeGenerator& generator) const
+	{
+		generator.Pop(m_Children.size());
 	}
 
 	void NodeReturn::GenerateCode(CodeGenerator& generator) const
@@ -148,13 +191,23 @@ namespace WhizzLang {
 
 	void NodeStatementFunctionCall::GenerateCode(CodeGenerator& generator) const
 	{
+		NodeCallArgumentList* arguments = reinterpret_cast<NodeCallArgumentList*>(m_Children[0]);
+		arguments->GenerateCode(generator);
+
 		generator << "\tcall " << m_Identifier.Buffer << "\n";
+
+		arguments->GenerateCleanupCode(generator);
 	}
 
 	void NodeTermFunctionCall::GenerateCode(CodeGenerator& generator) const
 	{
+		NodeCallArgumentList* arguments = reinterpret_cast<NodeCallArgumentList*>(m_Children[0]);
+		arguments->GenerateCode(generator);
+
 		generator << "\tcall " << m_Identifier.Buffer << "\n";
 		generator << "\tmov r8, rax\n";
+
+		arguments->GenerateCleanupCode(generator);
 	}
 
 	void NodeTermIntegerLiteral::GenerateCode(CodeGenerator& generator) const
@@ -212,18 +265,6 @@ namespace WhizzLang {
 		if (!variable.has_value())
 			throw GeneratorError(fmt::format("Undeclared identifier `{}`", m_Identifier.Buffer), m_Filename, m_Line, m_Column);
 		generator << "\tmov r8, QWORD [rsp + " << (generator.GetStackSize() - variable->StackLocation - 1) * 8 << "]\n";
-	}
-
-	void NodeScope::GenerateCode(CodeGenerator& generator) const
-	{
-		size_t currentScope = generator.PushScope();
-
-		for (const auto& child : m_Children)
-		{
-			child->GenerateCode(generator);
-		}
-
-		generator.PopScope(currentScope);
 	}
 
 }

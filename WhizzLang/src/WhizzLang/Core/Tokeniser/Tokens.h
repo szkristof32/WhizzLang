@@ -9,7 +9,7 @@ namespace WhizzLang {
 		KeywordIf, KeywordElse, KeywordWhile,
 		Identifier,
 		OpenBracket, CloseBracket, OpenBrace, CloseBrace,
-		Colon, Semicolon,
+		Colon, Semicolon, Comma,
 		IntegerLiteral,
 		Plus, Minus, Star, Slash,
 		Equal

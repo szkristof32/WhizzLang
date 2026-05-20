@@ -29,7 +29,7 @@ namespace WhizzLang {
 		size_t PushScope();
 		void PopScope(size_t index);
 
-		void DeclareVariable(const std::string& name);
+		void DeclareVariable(const std::string& name, bool growStack = false);
 		std::optional<Variable> FindVariable(const std::string& name) const;
 
 		void Push(const std::string_view reg);

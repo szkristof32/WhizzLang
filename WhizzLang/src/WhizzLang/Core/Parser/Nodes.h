@@ -59,6 +59,35 @@ namespace WhizzLang {
 		virtual void GenerateCode(CodeGenerator& generator) const override;
 	};
 
+	class NodeArgumentList : public Node
+	{
+	public:
+		NodeArgumentList(const std::filesystem::path& filename, size_t line, size_t column) : Node(filename, line, column) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	};
+
+	class NodeArgument : public Node
+	{
+	public:
+		NodeArgument(const Token& identifier, const Token& type, const std::filesystem::path& filename, size_t line, size_t column)
+			: Node(filename, line, column), m_Identifier(identifier), m_Type(type) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	private:
+		Token m_Identifier;
+		Token m_Type;
+	};
+
+	class NodeCallArgumentList : public Node
+	{
+	public:
+		NodeCallArgumentList(const std::filesystem::path& filename, size_t line, size_t column) : Node(filename, line, column) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+		void GenerateCleanupCode(CodeGenerator& generator) const;
+	};
+
 	class NodeStatement : public Node
 	{
 	public:

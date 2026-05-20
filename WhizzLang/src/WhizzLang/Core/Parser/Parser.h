@@ -35,6 +35,7 @@ namespace WhizzLang {
 		NodeStatement* ParseIdentifier();
 		NodeExpression* ParseExpression(uint32_t minPrecedence = 0);
 		NodeTerm* ParseTerm();
+		NodeArgumentList* ParseArgumentList();
 	private:
 		std::span<Token> m_Tokens;
 		std::string_view m_Filename;

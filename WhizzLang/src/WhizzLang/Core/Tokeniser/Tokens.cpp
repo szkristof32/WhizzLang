@@ -21,6 +21,7 @@ namespace WhizzLang {
 			case TokenType::CloseBrace:		return "CloseBrace";
 			case TokenType::Colon:			return "Colon";
 			case TokenType::Semicolon:		return "Semicolon";
+			case TokenType::Comma:			return "Comma";
 			case TokenType::IntegerLiteral:	return "IntegerLiteral";
 			case TokenType::Plus:			return "Plus";
 			case TokenType::Minus:			return "Minus";
