@@ -132,6 +132,17 @@ namespace WhizzLang {
 		Token m_Identifier;
 	};
 
+	class NodeStatementFunctionCall : public NodeStatement
+	{
+	public:
+		NodeStatementFunctionCall(const Token& identifier, const std::filesystem::path& filename, size_t line, size_t column)
+			: NodeStatement(filename, line, column), m_Identifier(identifier) {}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	private:
+		Token m_Identifier;
+	};
+
 	class NodeExpression : public Node
 	{
 	public:
@@ -184,6 +195,18 @@ namespace WhizzLang {
 		const Token& GetIdentifier() const { return m_Identifier; }
 	private:
 		const Token& m_Identifier;
+	};
+
+	class NodeTermFunctionCall : public NodeTerm
+	{
+	public:
+		NodeTermFunctionCall(const Token& identifier, const std::filesystem::path& filename, size_t line, size_t column)
+			: NodeTerm(filename, line, column), m_Identifier(identifier) {
+		}
+
+		virtual void GenerateCode(CodeGenerator& generator) const override;
+	private:
+		Token m_Identifier;
 	};
 
 	class NodeBinaryExpression : public NodeExpression

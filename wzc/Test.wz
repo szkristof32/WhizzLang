@@ -1,7 +1,6 @@
-// The entry point of the program
-fn main() : int
+fn calculate() : int
 {
-    // val = 24
+	 // val = 24
     const val = 6 * (8 + 8) / 4;
     if (val - 24)
     {
@@ -30,5 +29,12 @@ fn main() : int
         }
     }
 
+    return val;
+}
+
+// The entry point of the program
+fn main() : int
+{
+    const val = calculate();
     return val;
 }

@@ -146,6 +146,17 @@ namespace WhizzLang {
 		generator << "\tmov QWORD [rsp + " << (generator.GetStackSize() - variable->StackLocation - 1) * 8 << "], r8\n";
 	}
 
+	void NodeStatementFunctionCall::GenerateCode(CodeGenerator& generator) const
+	{
+		generator << "\tcall " << m_Identifier.Buffer << "\n";
+	}
+
+	void NodeTermFunctionCall::GenerateCode(CodeGenerator& generator) const
+	{
+		generator << "\tcall " << m_Identifier.Buffer << "\n";
+		generator << "\tmov r8, rax\n";
+	}
+
 	void NodeTermIntegerLiteral::GenerateCode(CodeGenerator& generator) const
 	{
 		generator << "\tmov r8, " << m_IntegerLiteral.Buffer << "\n";

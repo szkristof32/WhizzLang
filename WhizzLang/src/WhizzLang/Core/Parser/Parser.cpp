@@ -171,13 +171,7 @@ namespace WhizzLang {
 			}
 			case TokenType::Identifier:
 			{
-				Token identifier = Consume();
-				TryConsume(TokenType::Equal);
-				NodeExpression* expression = ParseExpression();
-				TryConsume(TokenType::Semicolon);
-				NodeStatement* statement = new NodeAssign(identifier, metadata);
-				statement->PushChild(expression);
-				return statement;
+				return ParseIdentifier();
 			}
 		}
 
@@ -224,6 +218,41 @@ namespace WhizzLang {
 		}
 
 		return statement;
+	}
+
+	NodeStatement* Parser::ParseIdentifier()
+	{
+		Token identifier = Consume();
+
+		if (!Peek().has_value())
+		{
+			const auto& currentToken = GetCurrentToken();
+			throw ParserError("Invalid token: Expected Semicolon", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
+		}
+
+		switch (Peek()->Type)
+		{
+			case TokenType::Equal:
+			{
+				Consume();
+				NodeExpression* expression = ParseExpression();
+				TryConsume(TokenType::Semicolon);
+				NodeStatement* statement = new NodeAssign(identifier, metadata);
+				statement->PushChild(expression);
+				return statement;
+			}
+			case TokenType::OpenBracket:
+			{
+				Consume();
+				TryConsume(TokenType::CloseBracket);
+				TryConsume(TokenType::Semicolon);
+				NodeStatement* statement = new NodeStatementFunctionCall(identifier, metadata);
+				return statement;
+			}
+		}
+
+		const auto& currentToken = GetCurrentToken();
+		throw ParserError("Invalid token: Expected Semicolon", std::nullopt, m_Filename, currentToken.Line, currentToken.Column);
 	}
 
 	NodeExpression* Parser::ParseExpression(uint32_t minPrecedence)
@@ -294,6 +323,16 @@ namespace WhizzLang {
 			case TokenType::Identifier:
 			{
 				auto& identifier = Consume();
+
+				if (Peek().has_value() && Peek()->Type == TokenType::OpenBracket)
+				{
+					Consume();
+					TryConsume(TokenType::CloseBracket);
+					
+					NodeTerm* term = new NodeTermFunctionCall(identifier, metadata);
+					return term;
+				}
+
 				NodeTerm* term = new NodeTermIdentifier(identifier, metadata);
 				return term;
 			}
